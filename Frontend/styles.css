@@ -1,0 +1,446 @@
+/* --- Reset y Configuración General --- */
+:root {
+    --bg-color: #1a1a1a;
+    --card-bg-color: #2c2c2c;
+    --text-color: #f0f0f0;
+    --accent-color: #00a8ff; /* Un azul moderno para Sergio */
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --success-color: #2ecc71;
+    --urgent-color: #e74c3c;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* --- Cabecera y Pie de Página --- */
+header {
+    text-align: center;
+    padding: 2rem 1rem;
+    border-bottom: 1px solid var(--card-bg-color);
+}
+
+header h1 {
+    color: var(--accent-color);
+    font-size: 2.5rem;
+}
+
+footer {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #aaa;
+}
+
+/* --- Grid de Animales --- */
+main {
+    padding: 2rem 1rem;
+}
+
+.animal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* --- Tarjeta de Animal --- */
+.animal-card {
+    background-color: var(--card-bg-color);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 16px var(--shadow-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.animal-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px var(--shadow-color);
+}
+
+.animal-card__image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+}
+
+.animal-card__content {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.animal-card__name {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 0.5rem;
+}
+
+.animal-card__details {
+    list-style: none;
+    margin-top: 1rem;
+    font-size: 0.95rem;
+}
+
+.animal-card__details li {
+    margin-bottom: 0.5rem;
+    color: #ccc;
+}
+
+.animal-card__details strong {
+    color: var(--text-color);
+    margin-right: 0.5em;
+}
+
+/* Controles de subida dentro de cada tarjeta */
+.upload-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 12px 16px 18px 16px;
+    border-top: 1px solid rgba(255,255,255,0.03);
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+}
+.upload-input {
+    flex: 1;
+    background-color: #2f2f2f;
+    border: 1px solid #444;
+    color: #ddd;
+    padding: 8px;
+    border-radius: 8px;
+}
+.btn-upload {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.btn-upload:hover { background: #008ecc; }
+.upload-status { color: #bbb; font-size: 0.8rem; margin-left: 6px; }
+
+/* --- Estado del Animal (Insignia) --- */
+.animal-card__status {
+    align-self: flex-start;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.animal-card__status--en-adopcion {
+    background-color: var(--success-color);
+    color: #fff;
+}
+
+.animal-card__status--en-tratamiento {
+    background-color: var(--urgent-color);
+    color: #fff;
+}
+
+.animal-card__status--rescatado {
+    background-color: #f39c12;
+    color: #fff;
+}
+
+/* --- Mensaje de Error --- */
+.error-message {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: var(--urgent-color);
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+}
+/* --- Estilos del Botón Principal --- */
+.btn-nuevo {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background 0.3s;
+}
+
+.btn-nuevo:hover {
+    background-color: #008ecc;
+}
+
+/* --- ESTILOS DE LA VENTANA MODAL --- */
+.modal {
+    display: none; /* Oculto por defecto */
+    position: fixed; 
+    z-index: 1000; /* Por encima de todo */
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(0,0,0,0.7); /* Fondo negro semitransparente */
+    backdrop-filter: blur(5px); /* Efecto borroso moderno */
+}
+
+.modal-content {
+    background-color: var(--card-bg-color);
+    margin: 5% auto; /* 5% desde arriba y centrado */
+    padding: 2rem;
+    border: 1px solid #444;
+    width: 90%;
+    max-width: 500px; /* Ancho máximo del formulario */
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    position: relative;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Botón de cerrar (X) */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: white;
+}
+
+/* Estilos para el formulario dentro del modal */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #555;
+    background-color: #3a3a3a;
+    color: white;
+    font-family: inherit;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-submit:hover {
+    background-color: #27ae60;
+}/* --- ESTILOS DE LA VENTANA MODAL MEJORADOS --- */
+.modal-content {
+    background-color: var(--card-bg-color);
+    margin: 2rem auto; /* Un poco de margen arriba/abajo */
+    padding: 2rem;
+    border: 1px solid #444;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    position: relative;
+    animation: slideDown 0.3s ease-out;
+
+    /* 🔥 ESTO ES LO QUE ARREGLA EL CORTE 🔥 */
+    max-height: 90vh; /* Altura máxima: 90% de la pantalla */
+    overflow-y: auto; /* Si el contenido es mayor, pon scroll vertical */
+}
+
+/* --- RESPONSIVE: AJUSTES PARA MÓVILES (Poner al final del archivo) --- */
+@media (max-width: 600px) {
+    
+    header {
+        padding: 1rem 0.5rem;
+    }
+
+    header h1 {
+        font-size: 2rem;
+    }
+
+    /* Ajuste del modal en móviles */
+    .modal-content {
+        width: 95%;      
+        margin: 1rem auto; /* Menos margen vertical */
+        padding: 1.2rem;
+        max-height: 85vh; /* Un poco más pequeño en móviles para dejar espacio */
+    }
+
+    /* Arreglo para el botón largo "Registrar Nuevo Animal" */
+    .btn-nuevo {
+        width: 100%;       
+        padding: 12px 5px; 
+        font-size: 0.9rem; 
+        
+        /* Permite que el texto baje a dos líneas si no cabe */
+        white-space: normal; 
+        word-wrap: break-word; 
+        height: auto; /* Altura automática para acomodar el texto */
+        
+        display: block;
+        margin: 15px auto 0 auto;
+    }
+}/* --- Estilos para el contenedor de login --- */
+.login-container {
+    background-color: var(--card-bg-color);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px var(--shadow-color);
+    width: 90%;
+    max-width: 400px;
+    margin: 5rem auto;
+    animation: slideDown 0.3s ease-out;
+}
+
+.login-container h2 {
+    color: var(--accent-color);
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+/* --- Estilos para la informaci�n de usuario --- */
+.user-info {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: var(--card-bg-color);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.user-info span {
+    font-size: 0.9rem;
+}
+
+#logout-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    background-color: var(--urgent-color);
+}
+/* --- Estilos para el mensaje de error de login --- */
+#login-error {
+    color: var(--urgent-color);
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+}
+/* --- Ajustes de Cabecera para Login --- */
+.header-top {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#user-actions {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+/* Botón de Iniciar Sesión */
+.btn-login {
+    background-color: transparent;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    padding: 8px 15px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-login:hover {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+/* Estilos de usuario logueado */
+.user-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: rgba(255,255,255,0.1);
+    padding: 5px 15px;
+    border-radius: 20px;
+}
+
+.btn-logout {
+    background-color: var(--urgent-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+/* Ajuste móvil para el login */
+@media (max-width: 600px) {
+    #user-actions {
+        position: relative;
+        margin-top: 10px;
+    }
+    .header-top {
+        flex-direction: column;
+    }
+}

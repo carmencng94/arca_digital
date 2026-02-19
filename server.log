@@ -1,0 +1,30 @@
+ Servidor Arca Digital iniciado
+ Escuchando en: http://localhost:8080
+[PUT /api/animales] body={"id":7,"fotoUrl":"/img/1771438992330_sos-felinos-madrid-casa-de-acogida-gatos.jpg"}
+Parsed id=null fotoUrl=null
+[PUT /api/animales] body={"id":7,"fotoUrl":"/img/1771437377654_sos-felinos-madrid-casa-de-acogida-gatos.jpg"}
+Parsed id=null fotoUrl=null
+ Servidor Arca Digital iniciado
+ Escuchando en: http://localhost:8080
+ Servidor Arca Digital iniciado
+ Escuchando en: http://localhost:8080
+[PUT /api/animales] body={"id":7,"fotoUrl":"/img/1771437377654_sos-felinos-madrid-casa-de-acogida-gatos.jpg"}
+Parsed id=7 fotoUrl=/img/1771437377654_sos-felinos-madrid-casa-de-acogida-gatos.jpg
+[AnimalDAO] actualizarFotoUrl id=7 filas=1
+[PUT /api/animales] body={"id":8,"fotoUrl":"/img/1771439781456_Captura_de_pantalla_2026-02-18_193504.png"}
+Parsed id=8 fotoUrl=/img/1771439781456_Captura_de_pantalla_2026-02-18_193504.png
+[AnimalDAO] actualizarFotoUrl id=8 filas=1
+[PUT /api/animales] body={"id":9,"fotoUrl":"/img/1771439806500_Captura_de_pantalla_2026-02-18_193456.png"}
+Parsed id=9 fotoUrl=/img/1771439806500_Captura_de_pantalla_2026-02-18_193456.png
+[AnimalDAO] actualizarFotoUrl id=9 filas=1
+[PUT /api/animales] body={"id":11,"fotoUrl":"/img/1771439832433_Captura_de_pantalla_2026-02-18_193512.png"}
+Parsed id=11 fotoUrl=/img/1771439832433_Captura_de_pantalla_2026-02-18_193512.png
+[AnimalDAO] actualizarFotoUrl id=11 filas=1
+ Servidor Arca Digital iniciado
+ Escuchando en: http://localhost:8080
+ Servidor Arca Digital iniciado
+ Escuchando en: http://localhost:8080
+ Servidor Arca Digital iniciado
+ Escuchando en: http://localhost:8080
+ Servidor Arca Digital iniciado
+ Escuchando en: http://localhost:8080

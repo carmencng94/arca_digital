@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arca Digital - Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+   <header>
+        <div class="header-top">
+            <h1>Arca Digital</h1>
+            <div id="user-actions"></div>
+        </div>
+        <p>Dashboard de Animales</p>
+        
+        <button id="btnAbrirModal" class="btn-nuevo" style="display: none;"> + Registrar Nuevo Animal</button>
+    </header>
+    <main>
+        <div id="error-message" class="error-message" style="display: none;"></div>
+        
+        <div id="animal-grid" class="animal-grid">
+            </div>
+    </main>
+
+    <div id="miModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>🐾 Nuevo Registro</h2>
+            
+            <form id="formAnimal">
+                <div class="form-group">
+                    <label>ID Registro:</label>
+                    <input type="text" id="id" placeholder="Ej: JVM-001" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Nombre:</label>
+                    <input type="text" id="nombre" placeholder="Nombre del animal" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Especie:</label>
+                        <select id="especie">
+                            <option value="Perro">Perro</option>
+                            <option value="Gato">Gato</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Raza:</label>
+                        <input type="text" id="raza" placeholder="Ej: Mestizo">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Edad (años):</label>
+                        <input type="number" id="edad" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Estado:</label>
+                        <select id="estado">
+                            <option value="RESCATADO">Rescatado</option>
+                            <option value="EN_ADOPCION">En Adopción</option>
+                            <option value="EN_TRATAMIENTO">En Tratamiento</option>
+                            <option value="ADOPTADO">Adoptado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>¿Es Urgente?</label>
+                    <select id="urgente">
+                        <option value="false">No</option>
+                        <option value="true">Sí, urgente</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción:</label>
+                    <textarea id="descripcion" rows="3"></textarea>
+                </div>
+
+                <div class="form-group photo-upload">
+                    <label>Fotografía:</label>
+                    <input type="file" id="fotoInput" accept="image/*">
+                    <small id="fotoStatus">Sin archivo seleccionado</small>
+                </div>
+
+                <input type="hidden" id="fechaRegistro">
+
+                <button type="submit" class="btn-submit">Guardar Ficha</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>Proyecto Arca Digital - Panel de Control</p>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
