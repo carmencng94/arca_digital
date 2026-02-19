@@ -25,10 +25,11 @@
 El proyecto **Arca Digital** es una aplicación web de **dos capas (cliente-servidor)** para gestionar un refugio de animales. Tras un proceso iterativo de desarrollo, enfrentamos y resolvimos múltiples desafíos de arquitectura, configuración y conectividad.
 
 ### Estado Actual
-- **Backend:** Java HTTP Server con acceso a MariaDB
-- **Frontend:** Aplicación web estática (HTML5 + CSS + JavaScript)
+- **Backend:** Java HTTP Server con acceso a MariaDB (incluye endpoints de login y gestión CRUD)
+- **Frontend:** Aplicación web estática (HTML5 + CSS + JavaScript) con login simulado y controles administrativos
 - **Base de Datos:** MariaDB local
 - **Puerto:** 8080
+- **Tema:** Dark mode mediante variables CSS y diseño responsivo
 - **Estado:** Funcionando correctamente
 
 ### Métricas del Código
@@ -51,6 +52,7 @@ La aplicación sigue un patrón híbrido que combina elementos de **MVC** con el
 │  HTML5 + CSS3 + JavaScript (app.js)                         │
 │  - Interfaz de usuario                                      │
 │  - Peticiones HTTP asincrónicas (fetch)                     │
+│  - Gestión de sesión simple (login/logout) y control de UI   │
 └─────────────────┬───────────────────────────────────────────┘
                   │ HTTP
                   │ Requests/Responses
@@ -60,6 +62,7 @@ La aplicación sigue un patrón híbrido que combina elementos de **MVC** con el
 │  - Punto de entrada para todas las peticiones               │
 │  - Enrutador de recursos                                    │
 │  - Controlador de la lógica de respuesta                     │
+│  - Endpoints REST para autenticación (login) y gestión CRUD  │
 └─────────────────┬───────────────────────────────────────────┘
                   │ Llamadas de método
                   ▼
@@ -1085,6 +1088,9 @@ Aplicación cliente que:
 1. Obtiene datos de la API REST
 2. Construye interfaz visual dinámicamente
 3. Maneja errores de conexión
+4. Gestiona la sesión de usuario y muestra controles administrativos (borrado, subida de fotos, creación de fichas)
+
+> Este archivo ha crecido a medida que se añadieron nuevas capacidades: primero solo mostraba tarjetas, luego se incorporó lógica de login y operaciones CRUD completas. Las responsabilidades están divididas en funciones para mantener la legibilidad.
 
 #### Estructura Modular
 
@@ -1286,6 +1292,15 @@ const createAnimalCard = (animal) => {
 - ✅ Inyección de clase CSS según estado
 - ✅ Validación implícita de propiedades esperadas
 
+#### Extensiones administrativas (versión avanzada)
+A partir de la versión con autenticación, las tarjetas se enriquecen cuando existe un usuario en sesión (`sessionStorage.user`):
+
+- Se añade un `div.upload-controls` con botones **Eliminar** y **Cambiar Foto** y un campo de tipo `file` oculto.
+- Los eventos `onclick` de los botones disparan funciones adicionales (`eliminarAnimal`, `subirYActualizarFoto`) que consumen nuevos endpoints REST (`DELETE /api/animales/{id}`, `PUT /api/animales`) y gestionan la recarga de la tarjeta o la página.
+- El chequeo `if (user)` protege visualmente las acciones; la API también valida el método HTTP.
+
+Este enfoque separa claramente la visualización genérica de la gestión propietaria, facilitando futura incorporación de roles más granulares.
+
 #### Función `fetchAnimals()`
 
 ```javascript
@@ -1349,6 +1364,47 @@ const fetchAnimals = async () => {
 ```
 
 **Error Handling de tres niveles:**
+
+---
+
+### 7. Frontend: `auth.js` - Control de Sesión
+
+#### Propósito
+Maneja el estado de autenticación en el frontend y decide qué elementos mostrar/ocultar según si hay un usuario logueado.
+
+- Lee el objeto `user` de `sessionStorage`.
+- Si el usuario ya está logueado y se encuentra en la página de login, redirige automáticamente al `index.html`.
+- Modifica el `div#user-actions` para mostrar un enlace de login o un badge con el nombre de usuario y un botón de logout.
+- Controla la visibilidad del botón `btnAbrirModal` (registro de animales) dejando visible únicamente si hay sesión activa.
+- Genera el listener para cerrar sesión que borra `sessionStorage` y recarga la página.
+
+Esta separación mantiene la lógica de autenticación independiente del código de negocio principal (`app.js`).
+
+### 8. Frontend: `login.js` - Lógica de Autenticación Simplificada
+
+#### Propósito
+Valida credenciales de usuario contra un listado estático y crea la sesión en `sessionStorage`.
+
+- Contiene un objeto `allowedUsers` con pares usuario/contraseña (admin, voluntario).
+- En el evento `submit` del formulario impide el comportamiento por defecto, lee los campos y comprueba las credenciales.
+- En caso de éxito almacena `{ username, role }` en `sessionStorage` y redirige al dashboard.
+- En caso de fallo muestra un mensaje de error y limpia el campo de contraseña.
+
+> Nota: en un entorno real esta verificación se haría contra el servidor mediante `/api/login`; aquí se mantiene como simulación para no complicar el backend.
+
+### 9. Frontend: `styles.css` - Variables, Tema Oscuro y Diseño Responsivo
+
+#### Propósito
+Proporcionar apariencia moderna y accesible mediante variables CSS, grid flexible y efectos visuales.
+
+- Definición de `:root` con variables de color (`--bg-color`, `--accent-color`, `--success-color`, `--urgent-color`, etc.) para facilitar el mantenimiento y permitir cambios temáticos.
+- Reset global (`* { margin:0; padding:0; box-sizing:border-box; }`) para consistencia entre navegadores.
+- Estilos de tarjeta con sombra, transición hover y layout flex/column.
+- Grid responsivo (`display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));`) que adapta el número de columnas según el ancho disponible.
+- Secciones específicas para la página de login y el estado de usuario (botón de login, badge). Los colores y botones se adaptan a las variables definidas.
+- Clases BEM usadas (`animal-card__status--en-adopcion`, etc.) para separar estructura de presentación.
+
+Estos cambios mejoran la legibilidad, la experiencia móvil y la mantenibilidad del CSS.
 
 ```javascript
 // 1. Error de red (fetch falla)
@@ -1474,6 +1530,38 @@ HTML estático no se actualizaba al cambiar datos en BD.
 | Frontend no conecta con servidor | Puerto desincronizado | Unificar puerto 8080 en ambos lados |
 | JSON con caracteres especiales | No escapado | Implementar `escapeJson()` |
 
+### Fase 7: Autenticación y Control de Acceso
+
+#### Problem encontrado
+El sistema estaba completamente abierto: cualquier visita podía modificar o borrar datos, y no existía una forma práctica de agregar nuevos animales desde la interfaz.
+
+#### Soluciones implementadas
+- ✅ Introducción de páginas `login.html` y scripts `login.js`/`auth.js` para manejar sesión de usuario.
+  - El login es simulado en frontend; el backend expone `POST /api/login` que también verifica credenciales simples para futuras extensiones.
+  - Al iniciar sesión, la información (`username` y `role`) se guarda en `sessionStorage` y se utiliza para condicionar la UI.
+- ✅ Nuevos endpoints en `ServidorAPI.java`:
+  - `DELETE /api/animales/{id}` para eliminar registros.
+  - `PUT /api/animales` para actualizar fichas (usada al cambiar foto).
+  - `POST /api/upload` simulado para recibir binarios y devolver URL.
+- ✅ Modificaciones en `app.js` para mostrar botones de gestión sólo cuando hay usuario activo y para manejar las acciones asociadas.
+- ✅ Protección visual y funcional: aunque la UI oculta los controles, el backend valida el método HTTP y el formato de datos.
+
+Este cambio introdujo una separación básica entre modo público y modo administrador/voluntario, preparando el terreno para permisos más sofisticados.
+
+### Fase 8: Estética, Accesibilidad y Responsive
+
+#### Problem encontrado
+La interfaz era funcional pero primitiva: colores rígidos, sin adaptabilidad a móviles, y el estilo estaba incrustado de forma ad‑hoc.
+
+#### Soluciones implementadas
+- ✅ Creación de `styles.css` con variables CSS y reset global para consistencia entre navegadores.
+- ✅ Diseño de grid responsivo utilizando `auto-fill` y `minmax` para que las tarjetas se redistribuyan según el ancho de la pantalla.
+- ✅ Colores semánticos (`--success-color`, `--urgent-color`) y clases BEM para distinguir estados y roles (login, badge de usuario).
+- ✅ Transiciones hover, sombreado y tipografías modernas (fuente Inter) para mejorar la usabilidad y aspecto profesional.
+- ✅ Estilos específicos para la página de login, el modal de registro y los controles administrativos.
+
+Estos ajustes mejoran la experiencia tanto en desktop como en dispositivos móviles y facilitan la personalización futura del tema.
+
 ### Resumen de Cambios
 
 ```
@@ -1489,7 +1577,15 @@ EVOLUCION: + toJson() para serialización
     ↓
 EVOLUCION: + getFechaIngresoFormateada() para presentación
     ↓
-FINAL: Modelo completo con serialización
+EVOLUCION: + ServidorHTTP + endpoint `/api/animales`
+    ↓
+EVOLUCION: + Frontend dinámico (fetch, tarjetas responsivas)
+    ↓
+EVOLUCION: + Login + auth.js + role-based UI + CRUD completo
+    ↓
+EVOLUCION: + CSS variables y diseño responsive
+    ↓
+FINAL: Sistema completo (API, UI, autenticación, estilo)
 ```
 
 ---
@@ -1874,6 +1970,24 @@ http://localhost:8080
 - Página carga correctamente
 - Se muestran tarjetas de animales
 - Tarjetas tienen colores según estado
+
+### Operaciones de Administrador
+1. Acceder a la página de login:
+   ```
+   http://localhost:8080/login.html
+   ```
+   (también existe enlace en el header cuando no hay sesión).
+2. Credenciales pre‑definidas:
+   - **Usuario:** `admin` / **Contraseña:** `admin123`
+   - **Usuario:** `voluntario` / **Contraseña:** `voluntario123`
+3. Al iniciar sesión se redirige al dashboard y el nombre aparece en un badge.
+4. El botón **+ Registrar Nuevo Animal** se hace visible; abre un modal con el formulario.
+5. Cada tarjeta muestra ahora controles:
+   - Botón **Eliminar** solicita confirmación y ejecuta `DELETE /api/animales/{id}`.
+   - Botón **Cambiar Foto** abre un selector de archivos; la imagen se sube mediante `POST /api/upload` y luego se actualiza la ficha con `PUT /api/animales`.
+6. Para cerrar sesión use el botón **Cerrar Sesión** en el badge.
+
+> Estas operaciones sólo aparecen visualmente cuando hay un usuario en sesión. El servidor, aunque simula autenticación, valida también el método HTTP de las peticiones para mayor robustez.
 
 ### Debugging
 

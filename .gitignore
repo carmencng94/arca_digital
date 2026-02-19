@@ -1,0 +1,11 @@
+# Compiled Java classes
+*.class
+
+# Output directory for compiled files
+/out/
+
+# Log files
+*.log
+
+# IDE settings
+.vscode/
