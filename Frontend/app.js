@@ -1,9 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("app.js: Script principal de la aplicación iniciado.");
     const API_URL = 'http://localhost:8080/api';
     const animalGrid = document.getElementById('animal-grid');
     const user = JSON.parse(sessionStorage.getItem('user'));
     const formAnimal = document.getElementById('formAnimal');
     const modal = document.getElementById("miModal");
+    const btnAbrirModal = document.getElementById('btnAbrirModal');
+    console.log("Buscando el botón para abrir el modal:", btnAbrirModal);
+
+    if (btnAbrirModal) {
+        console.log("Botón encontrado. Asignando evento onclick.");
+        btnAbrirModal.onclick = () => {
+            console.log("¡Clic en el botón! Abriendo modal...");
+            modal.style.display = "block";
+        }
+    } else {
+        console.log("ADVERTENCIA: No se encontró el botón con id 'btnAbrirModal'.");
+    }
+
+    document.querySelector(".close").onclick = () => modal.style.display = "none";
+
+    window.onclick = (event) => {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    };
 
     /**
      * Inicializa la carga de animales al abrir el dashboard.
@@ -106,9 +127,14 @@ document.addEventListener('DOMContentLoaded', () => {
         formAnimal.addEventListener('submit', async (e) => {
             e.preventDefault();
             const data = {
+                id: document.getElementById('id').value,
                 nombre: document.getElementById('nombre').value,
                 especie: document.getElementById('especie').value,
-                // ... añadir resto de campos
+                raza: document.getElementById('raza').value,
+                edad: parseInt(document.getElementById('edad').value, 10),
+                estado: document.getElementById('estado').value,
+                urgente: document.getElementById('urgente').value === 'true',
+                descripcion: document.getElementById('descripcion').value
             };
             const resp = await fetch(`${API_URL}/animales`, {
                 method: 'POST',
@@ -116,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(data)
             });
             if (resp.ok) {
+                formAnimal.reset();
                 modal.style.display = "none";
                 fetchAnimals();
             }

@@ -60,12 +60,15 @@ public class ServidorAPI {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             String path = exchange.getRequestURI().getPath();
+            System.out.println("[StaticFileHandler] Petición recibida para: " + path);
             if (path.equals("/")) path = "/index.html"; // Redirigir la raíz a index.html
 
             String filePath = PROJECT_ROOT + File.separator + "Frontend" + path;
+            System.out.println("[StaticFileHandler] Intentando servir archivo: " + filePath);
             File file = new File(filePath);
 
             if (file.exists() && !file.isDirectory()) {
+                System.out.println("[StaticFileHandler] Archivo encontrado. Sirviendo...");
                 // Determinar el tipo MIME basado en la extensión del archivo.
                 String mimeType = "application/octet-stream"; // Tipo por defecto.
                 if (path.endsWith(".html")) mimeType = "text/html; charset=UTF-8";
@@ -81,6 +84,7 @@ public class ServidorAPI {
                     Files.copy(file.toPath(), os);
                 }
             } else {
+                System.out.println("[StaticFileHandler] ADVERTENCIA: Archivo no encontrado. Devolviendo 404.");
                 // Si el archivo no se encuentra, enviar un error 404.
                 String response = "404 Not Found";
                 exchange.sendResponseHeaders(404, response.getBytes().length);
