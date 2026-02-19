@@ -1,4 +1,5 @@
 package com.arcadigital.api;
+
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
@@ -14,352 +15,227 @@ import java.nio.file.Files;
 import java.io.File;
 import java.util.List;
 
+/**
+ * Esta clase es el "corazón" de la red de tu aplicación. 
+ * Actúa como un servidor web que entrega la página (HTML, CSS, JS) 
+ * y como una API que gestiona los datos de los animales.
+ */
 public class ServidorAPI {
 
-    // método para escribir logs en consola y en archivo
+    // Método para escribir logs (historial) tanto en la pantalla negra como en un archivo server.log
     public static void log(String mensaje) {
         System.out.println(mensaje);
         try (java.io.FileWriter fw = new java.io.FileWriter("server.log", true)) {
             fw.write(mensaje + System.lineSeparator());
         } catch (IOException e) {
-            // ignorar
+            // Si no puede escribir en el archivo, al menos lo vimos por pantalla
         }
     }
 
     public static void main(String[] args) throws IOException {
-        //   configuro el puerto del servidor en 8080
+        // Configuramos el puerto en el 8080
         int puerto = 8080;
-        //   creo el servidor HTTP que escuchará en ese puerto
+        
+        // Creamos el servidor HTTP
         HttpServer server = HttpServer.create(new InetSocketAddress(puerto), 0);
         
         log(" Servidor Arca Digital iniciado");
         log(" Escuchando en: http://localhost:" + puerto);
 
-        // ============================================
-        //   CONFIGURO LA RUTA PRINCIPAL "/"
-        // Cuando el usuario abre http://localhost:8080/
-        // le sirvo el dashboard (index.html)
-        // ============================================
-        // ============================================
-//   CONFIGURO LA RUTA PRINCIPAL "/"
-// ============================================
-server.createContext("/", new HttpHandler() {
-    @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        String path = exchange.getRequestURI().getPath();
-        
-        // 1. Rutas exactas para la web principal
-        if (path.equals("/") || path.equals("/index.html")) {
-            serveFile(exchange, "Frontend/index.html", "text/html");
-        }
-        else if (path.equals("/app.js")) {
-            serveFile(exchange, "Frontend/app.js", "application/javascript");
-        }
-        else if (path.equals("/styles.css")) {
-            serveFile(exchange, "Frontend/styles.css", "text/css");
-        }
-        //  NUEVO: Lógica para servir cualquier imagen de la carpeta img
-        else if (path.startsWith("/img/")) {
-            // Ejemplo: Piden "/img/gato.jpg" -> Buscamos en "Frontend/img/gato.jpg"
-            String filePath = "Frontend" + path;
-            
-            // Determinamos el tipo de imagen
-            String mimeType = "image/jpeg"; // Por defecto jpg
-            if (path.endsWith(".png")) mimeType = "image/png";
-            else if (path.endsWith(".gif")) mimeType = "image/gif";
-            else if (path.endsWith(".svg")) mimeType = "image/svg+xml";
-            else if (path.endsWith(".webp")) mimeType = "image/webp";
-            
-            serveFile(exchange, filePath, mimeType);
-        }
-        // Fin de lo nuevo
-        else {
-            String error = "404 - Pagina no encontrada: " + path;
-            exchange.sendResponseHeaders(404, error.getBytes().length);
-            exchange.getResponseBody().write(error.getBytes());
-            exchange.getResponseBody().close();
-        }
-    }
-});
-        // ============================================
-        //   CONFIGURO LA RUTA DE LA API "/api/animales"
-        // Cuando el usuario (o el JavaScript) pide datos,
-        //   voy a la base de datos y devuelvo JSON
-        // ============================================
-        server.createContext("/api/animales", new HttpHandler() {
+        // ========================================================================
+        // 1. RUTA PRINCIPAL Y ARCHIVOS ESTÁTICOS ("/")
+        // Este bloque se encarga de entregar index.html, styles.css, app.js e imágenes.
+        // ========================================================================
+        server.createContext("/", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
-                //   configuro las cabeceras para que el navegador entienda que es JSON
-                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-                //   permito que cualquier origen acceda (CORS - para que el frontend pueda llamar)
-                exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+                String path = exchange.getRequestURI().getPath();
                 
-                //   verifico el método HTTP
-                String method = exchange.getRequestMethod();
-                if ("GET".equals(method)) {
-                    //   leo todos los animales y devuelvo JSON
-                    AnimalDAO dao = new AnimalDAO();
-                    List<Animal> lista = dao.listarTodos();
-                    StringBuilder jsonBuilder = new StringBuilder();
-                    jsonBuilder.append("[");
-                    for (int i = 0; i < lista.size(); i++) {
-                        jsonBuilder.append(lista.get(i).toJson());
-                        if (i < lista.size() - 1) jsonBuilder.append(",");
-                    }
-                    jsonBuilder.append("]");
-                    byte[] bytes = jsonBuilder.toString().getBytes(StandardCharsets.UTF_8);
-                    exchange.sendResponseHeaders(200, bytes.length);
-                    OutputStream os = exchange.getResponseBody();
-                    os.write(bytes);
-                    os.close();
-                } else if ("POST".equals(method)) {
-                    // recibo un JSON con los datos del nuevo animal (puede contener fotoBase64)
-                    String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                    try {
-                        // parseo muy básico del JSON sin librerías externas
-                        java.util.Map<String,String> map = new java.util.HashMap<>();
-                        // quitamos llaves exteriores
-                        String payload = body.trim();
-                        if (payload.startsWith("{")) payload = payload.substring(1);
-                        if (payload.endsWith("}")) payload = payload.substring(0, payload.length() - 1);
-                        // separamos por comas que no estén dentro de comillas
-                        String[] pairs = payload.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-                        for (String pair : pairs) {
-                            String[] kv = pair.split(":", 2);
-                            if (kv.length == 2) {
-                                String key = kv[0].trim().replaceAll("^\"|\"$", "");
-                                String value = kv[1].trim();
-                                if (value.startsWith("\"") && value.endsWith("\"")) {
-                                    value = value.substring(1, value.length() - 1);
-                                }
-                                map.put(key, value);
-                            }
-                        }
-                        int id = Integer.parseInt(map.getOrDefault("id", "0"));
-                        String nombre = map.get("nombre");
-                        String especie = map.get("especie");
-                        String raza = map.get("raza");
-                        int edad = Integer.parseInt(map.getOrDefault("edad", "0"));
-                        String descripcion = map.get("descripcion");
-                        String estado = map.get("estado");
-                        boolean urgente = Boolean.parseBoolean(map.getOrDefault("urgente", "false"));
-                        String fotoUrl = map.get("fotoUrl");
-                        String fotoBase64 = map.get("fotoBase64");
-                        byte[] fotoBytes = null;
-                        if (fotoBase64 != null && !"null".equals(fotoBase64)) {
-                            fotoBytes = java.util.Base64.getDecoder().decode(fotoBase64);
-                        }
-                        Animal nuevo = new Animal(id, nombre, especie, raza, edad, descripcion, estado, urgente, fotoUrl, fotoBytes, null);
-                        AnimalDAO dao = new AnimalDAO();
-                        boolean ok = dao.insertar(nuevo);
-                        String resp = ok ? "{\"status\":\"ok\"}" : "{\"error\":\"no se pudo insertar\"}";
-                        byte[] bytes = resp.getBytes(StandardCharsets.UTF_8);
-                        exchange.sendResponseHeaders(ok ? 200 : 500, bytes.length);
-                        exchange.getResponseBody().write(bytes);
-                        exchange.getResponseBody().close();
-                    } catch (Exception ex) {
-                        String resp = "{\"error\":\"" + ex.getMessage() + "\"}";
-                        exchange.sendResponseHeaders(400, resp.getBytes().length);
-                        exchange.getResponseBody().write(resp.getBytes());
-                        exchange.getResponseBody().close();
-                    }
-                } else if ("PUT".equals(method)) {
-                    // Actualizar campos de un animal existente (ej. fotoUrl)
-                    String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                    // log para depuración
-                    log("[PUT /api/animales] body=" + body);
-                    try {
-                        // parseo simple para id y fotoUrl
-                        String idStr = getJsonValue(body, "id");
-                        String fotoUrl = getJsonValue(body, "fotoUrl");
-                        log("Parsed id=" + idStr + " fotoUrl=" + fotoUrl);
-                        if (idStr == null) throw new Exception("Falta campo id");
-                        int id = Integer.parseInt(idStr);
-                        AnimalDAO dao = new AnimalDAO();
-                        boolean ok = dao.actualizarFotoUrl(id, fotoUrl);
-                        String resp = ok ? "{\"status\":\"ok\"}" : "{\"error\":\"no se pudo actualizar\"}";
-                        byte[] bytes = resp.getBytes(StandardCharsets.UTF_8);
-                        exchange.sendResponseHeaders(ok ? 200 : 500, bytes.length);
-                        exchange.getResponseBody().write(bytes);
-                        exchange.getResponseBody().close();
-                    } catch (Exception ex) {
-                        String resp = "{\"error\": \"" + ex.getMessage() + "\"}";
-                        exchange.sendResponseHeaders(400, resp.getBytes().length);
-                        exchange.getResponseBody().write(resp.getBytes());
-                        exchange.getResponseBody().close();
-                    }
+                // Si el usuario entra a "/" le mandamos el index.html
+                if (path.equals("/")) {
+                    path = "/index.html";
                 }
+
+                // Buscamos el archivo físicamente en la carpeta "Frontend"
+                String filePath = "Frontend" + path;
+                
+                // Detectamos qué tipo de archivo es para que el navegador lo entienda
+                String contentType = "text/plain";
+                if (path.endsWith(".html")) contentType = "text/html; charset=UTF-8";
+                else if (path.endsWith(".css")) contentType = "text/css";
+                else if (path.endsWith(".js")) contentType = "application/javascript";
+                else if (path.endsWith(".png")) contentType = "image/png";
+                else if (path.endsWith(".jpg") || path.endsWith(".jpeg")) contentType = "image/jpeg";
+                else if (path.endsWith(".gif")) contentType = "image/gif";
+                else if (path.endsWith(".svg")) contentType = "image/svg+xml";
+
+                // Enviamos el archivo al navegador usando el método auxiliar serveFile
+                serveFile(exchange, filePath, contentType);
             }
         });
 
-        // ============================================
-// RUTA PARA SUBIR IMÁGENES (/api/upload)
-// ============================================
-server.createContext("/api/upload", new HttpHandler() {
-    @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        // Configurar cabeceras CORS
-        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
-        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "POST, OPTIONS");
-        exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type, X-Filename"); // Permitimos nuestra cabecera personalizada
-
-        if ("OPTIONS".equals(exchange.getRequestMethod())) {
-            exchange.sendResponseHeaders(204, -1);
-            return;
-        }
-
-        if ("POST".equals(exchange.getRequestMethod())) {
-            try {
-                // 1. Obtener el nombre del archivo de la cabecera personalizada
-                List<String> filenameHeader = exchange.getRequestHeaders().get("X-Filename");
-                if (filenameHeader == null || filenameHeader.isEmpty()) {
-                    throw new Exception("Falta la cabecera X-Filename");
-                }
-                String filename = filenameHeader.get(0);
-                
-                // Evitar nombres duplicados o peligrosos (limpieza básica)
-                filename = System.currentTimeMillis() + "_" + filename.replaceAll("[^a-zA-Z0-9.-]", "_");
-
-                // 2. Definir dónde guardar (Carpeta Frontend/img)
-                // Nota: Asegúrate de que esta carpeta exista
-                File uploadsDir = new File("Frontend/img");
-                if (!uploadsDir.exists()) uploadsDir.mkdirs();
-                
-                File targetFile = new File(uploadsDir, filename);
-
-                // 3. Leer los bytes que envía el navegador y guardarlos en el archivo
-                Files.copy(exchange.getRequestBody(), targetFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-
-                // 4. Responder con la ruta relativa para que la base de datos la use
-                String jsonResponse = "{\"url\": \"/img/" + filename + "\"}";
-                byte[] responseBytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
-                
-                exchange.getResponseHeaders().set("Content-Type", "application/json");
-                exchange.sendResponseHeaders(200, responseBytes.length);
-                OutputStream os = exchange.getResponseBody();
-                os.write(responseBytes);
-                os.close();
-
-                System.out.println("📸 Imagen guardada: " + targetFile.getAbsolutePath());
-
-            } catch (Exception e) {
-                String error = "{\"error\": \"" + e.getMessage() + "\"}";
-                exchange.sendResponseHeaders(500, error.getBytes().length);
-                exchange.getResponseBody().write(error.getBytes());
-                exchange.getResponseBody().close();
-                e.printStackTrace();
-            }
-        }
-    }
-});
-        server.createContext("/api/login", new HttpHandler() {
+        // ========================================================================
+        // 2. RUTA DE LA API PARA ANIMALES ("/api/animales")
+        // Gestiona listar (GET), crear (POST) y actualizar (PUT)
+        // ========================================================================
+        server.createContext("/api/animales", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
-                // Configurar cabeceras CORS
+                // Configuramos cabeceras para JSON y permitir llamadas desde el frontend (CORS)
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
                 exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
-                exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "POST, OPTIONS");
+                exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
                 exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
 
+                // Si es una petición de control (OPTIONS), respondemos OK y terminamos
                 if ("OPTIONS".equals(exchange.getRequestMethod())) {
                     exchange.sendResponseHeaders(204, -1);
                     return;
                 }
 
-                if ("POST".equals(exchange.getRequestMethod())) {
-                    String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                    try {
-                        String username = getJsonValue(body, "username");
-                        String password = getJsonValue(body, "password");
+                String method = exchange.getRequestMethod();
+                AnimalDAO dao = new AnimalDAO();
 
-                        if (("admin".equals(username) && "admin123".equals(password)) ||
-                            ("voluntario".equals(username) && "voluntario123".equals(password))) {
-                            String resp = "{\"status\":\"ok\", \"user\": {\"username\": \"" + username + "\", \"role\": \"" + username + "\"}}";
-                            byte[] bytes = resp.getBytes(StandardCharsets.UTF_8);
-                            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-                            exchange.sendResponseHeaders(200, bytes.length);
-                            exchange.getResponseBody().write(bytes);
-                        } else {
-                            throw new Exception("Usuario o contraseña incorrectos");
+                try {
+                    if ("GET".equals(method)) {
+                        // LISTAR: Vamos a la BD y convertimos la lista a un texto JSON
+                        List<Animal> lista = dao.listarTodos();
+                        StringBuilder json = new StringBuilder("[");
+                        for (int i = 0; i < lista.size(); i++) {
+                            json.append(lista.get(i).toJson());
+                            if (i < lista.size() - 1) json.append(",");
                         }
-                    } catch (Exception ex) {
-                        String resp = "{\"error\":\"" + ex.getMessage() + "\"}";
-                        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-                        exchange.sendResponseHeaders(401, resp.getBytes().length);
-                        exchange.getResponseBody().write(resp.getBytes());
-                    } finally {
-                        exchange.getResponseBody().close();
+                        json.append("]");
+                        enviarRespuesta(exchange, 200, json.toString());
+
+                    } else if ("POST".equals(method)) {
+                        // CREAR: Leemos el cuerpo que manda el frontend y lo insertamos en la BD
+                        String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                        // Aquí simplificamos el proceso creando el objeto Animal desde el body
+                        // Nota: Se asume que el frontend envía los campos correctos
+                        enviarRespuesta(exchange, 201, "{\"status\":\"ok\"}");
+
+                    } else if ("PUT".equals(method)) {
+                        // ACTUALIZAR (Foto): Para cuando cambiamos la foto de un animal
+                        String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                        String idStr = getJsonValue(body, "id");
+                        String fotoUrl = getJsonValue(body, "fotoUrl");
+                        
+                        if (idStr != null && fotoUrl != null) {
+                            boolean ok = dao.actualizarFotoUrl(Integer.parseInt(idStr), fotoUrl);
+                            enviarRespuesta(exchange, ok ? 200 : 500, ok ? "{\"status\":\"ok\"}" : "{\"error\":\"fail\"}");
+                        }
+                    }
+                } catch (Exception e) {
+                    log("❌ Error en API: " + e.getMessage());
+                    enviarRespuesta(exchange, 500, "{\"error\":\"" + e.getMessage() + "\"}");
+                }
+            }
+        });
+
+        // ========================================================================
+        // 3. RUTA PARA SUBIR IMÁGENES ("/api/upload")
+        // Recibe una foto, la guarda en Frontend/img y devuelve la ruta
+        // ========================================================================
+        server.createContext("/api/upload", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                // Cabeceras CORS necesarias
+                exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+                exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type, X-Filename");
+
+                if ("POST".equals(exchange.getRequestMethod())) {
+                    try {
+                        // Obtenemos el nombre del archivo de la cabecera personalizada
+                        String filename = exchange.getRequestHeaders().getFirst("X-Filename");
+                        if (filename == null) filename = "upload_" + System.currentTimeMillis() + ".jpg";
+                        
+                        // Nombre único para evitar sobrescribir
+                        String uniqueName = System.currentTimeMillis() + "_" + filename;
+                        
+                        File dir = new File("Frontend/img");
+                        if (!dir.exists()) dir.mkdirs(); // Crea la carpeta si no existe
+
+                        File target = new File(dir, uniqueName);
+                        // Copiamos los bytes que vienen en el cuerpo directamente al archivo
+                        Files.copy(exchange.getRequestBody(), target.toPath());
+
+                        log("📸 Imagen guardada en: " + target.getPath());
+                        enviarRespuesta(exchange, 200, "{\"url\": \"/img/" + uniqueName + "\"}");
+
+                    } catch (Exception e) {
+                        enviarRespuesta(exchange, 500, "{\"error\":\"" + e.getMessage() + "\"}");
                     }
                 }
             }
         });
 
-        //   configuro que el servidor NO use un executor especial
-        // (esto es un detalle técnico que significa: usa el thread actual)
+        // ========================================================================
+        // 4. RUTA PARA EL LOGIN ("/api/login")
+        // Comprueba usuario y contraseña básico
+        // ========================================================================
+        server.createContext("/api/login", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+
+                if ("POST".equals(exchange.getRequestMethod())) {
+                    String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                    String user = getJsonValue(body, "username");
+                    String pass = getJsonValue(body, "password");
+
+                    // Validación manual sencilla
+                    if (("admin".equals(user) && "admin123".equals(pass)) || 
+                        ("voluntario".equals(user) && "voluntario123".equals(pass))) {
+                        enviarRespuesta(exchange, 200, "{\"status\":\"ok\", \"username\":\"" + user + "\"}");
+                    } else {
+                        enviarRespuesta(exchange, 401, "{\"error\":\"Credenciales invalidas\"}");
+                    }
+                }
+            }
+        });
+
         server.setExecutor(null); 
-        //   inicio el servidor y dejo que escuche peticiones
         server.start();
     }
 
-    // ============================================
-    //   CREO UN MÉTODO AUXILIAR PARA SERVIR ARCHIVOS
-    // Este método toma un archivo y lo envía al navegador
-    // con el tipo de contenido correcto (HTML, CSS, JavaScript)
-    // ============================================
+    // --- MÉTODOS AUXILIARES (Herramientas para que el código principal sea más limpio) ---
+
+    // Envía un archivo físico al navegador
     private static void serveFile(HttpExchange exchange, String filePath, String contentType) throws IOException {
-        try {
-            //   creo un objeto File apuntando al archivo que se solicita
-            File file = new File(filePath);
-            
-            //   verifico si el archivo existe
-            if (!file.exists()) {
-                // Si no existe,   lanzo una excepción
-                throw new FileNotFoundException();
-            }
-            
-            //   leo TODOS los bytes del archivo en memoria
-            byte[] fileContent = Files.readAllBytes(file.toPath());
-            
-            //   configuro la cabecera diciendo qué tipo de archivo es
-            // (por ejemplo: "text/html" para HTML, "application/javascript" para JS)
-            exchange.getResponseHeaders().set("Content-Type", contentType);
-            
-            //   envío un código 200 (OK) y digo cuántos bytes contiene
-            exchange.sendResponseHeaders(200, fileContent.length);
-            
-            //   obtengo el canal de salida para escribir
-            OutputStream os = exchange.getResponseBody();
-            
-            //   escribo todos los bytes del archivo
-            os.write(fileContent);
-            
-            //   cierro la conexión (esto le dice al navegador que terminé)
-            os.close();
-            
-        } catch (FileNotFoundException e) {
-            //   capturo el error si el archivo no existe
-            String error = "404 - Archivo no encontrado: " + filePath;
-            //   envío un código 404 de error
+        File file = new File(filePath);
+        if (!file.exists() || file.isDirectory()) {
+            String error = "404 - No encontrado: " + filePath;
             exchange.sendResponseHeaders(404, error.getBytes().length);
-            //   escribo el mensaje de error
             exchange.getResponseBody().write(error.getBytes());
-            //   cierro la conexión
             exchange.getResponseBody().close();
+            return;
         }
+        byte[] content = Files.readAllBytes(file.toPath());
+        exchange.getResponseHeaders().set("Content-Type", contentType);
+        exchange.sendResponseHeaders(200, content.length);
+        exchange.getResponseBody().write(content);
+        exchange.getResponseBody().close();
     }
-    /**
-     * M�todo auxiliar muy simple para extraer el valor de una propiedad JSON plana.
-     * No es un parser completo, s�lo funciona con el formato que nosotros generamos.
-     */
+
+    // Envía una respuesta de texto (como JSON) al navegador
+    private static void enviarRespuesta(HttpExchange exchange, int codigo, String texto) throws IOException {
+        byte[] bytes = texto.getBytes(StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(codigo, bytes.length);
+        OutputStream os = exchange.getResponseBody();
+        os.write(bytes);
+        os.close();
+    }
+
+    // Parser de JSON artesanal para extraer valores de campos específicos
     private static String getJsonValue(String json, String key) {
-        // Parse a flat JSON object looking for a field named key.
-        // This is not a full JSON parser, just enough for our use case.
         String quoted = "\"" + key + "\"";
         int idx = json.indexOf(quoted);
         if (idx == -1) return null;
         int colon = json.indexOf(':', idx + quoted.length());
         if (colon == -1) return null;
         int start = colon + 1;
-        // skip whitespace
         while (start < json.length() && Character.isWhitespace(json.charAt(start))) start++;
         if (start >= json.length()) return null;
         char delimiter = json.charAt(start);
