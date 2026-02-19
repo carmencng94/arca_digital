@@ -5,114 +5,132 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Clase AnimalDAO (Data Access Object)
- * Esta clase es el "trabajador". Su única función es realizar operaciones
- * de lectura y escritura (CRUD) sobre la tabla 'animales'.
- * Usa la ConexionDB para viajar a la base de datos.
+ * DAO (Data Access Object) para la entidad Animal.
+ * Esta clase encapsula toda la lógica de acceso a la base de datos para los animales,
+ * manteniendo el código SQL aislado del resto de la aplicación.
  */
 public class AnimalDAO {
 
     /**
-     * Método listarTodos
-     * Va a la base de datos, pide todos los animales y los devuelve como una lista de Java.
-     * Es lo que usaremos para mostrar el catálogo a Marta.
-     * * @return List<Animal> Una lista con todos los animales encontrados.
+     * Recupera todos los animales de la base de datos.
+     * @return Una lista de objetos Animal. La lista estará vacía si no hay animales o si ocurre un error.
      */
     public List<Animal> listarTodos() {
-        // Preparamos una lista vacía para ir llenándola
-        List<Animal> listaAnimales = new ArrayList<>();
-        
-        // Esta es la orden SQL que queremos enviar
-        String sql = "SELECT * FROM animales";
+        List<Animal> animales = new ArrayList<>();
+        // Consulta SQL para seleccionar todos los campos de la tabla.
+        String sql = "SELECT * FROM animales ORDER BY fecha_ingreso DESC";
 
-        // Usamos un bloque 'try-with-resources' (los paréntesis después del try).
-        // Esto asegura que la conexión se cierre sola al terminar, evitando problemas.
+        // El bloque try-with-resources asegura que la conexión y los recursos se cierren automáticamente.
         try (Connection conn = ConexionDB.conectar();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
-            // El ResultSet (rs) es como una hoja de cálculo con los resultados.
-            // Recorremos fila por fila con un bucle while.
+            // Itera sobre cada fila del resultado.
             while (rs.next()) {
-                // 1. Extraemos los datos de la fila actual
-                int id = rs.getInt("id");
-                String nombre = rs.getString("nombre");
-                String especie = rs.getString("especie");
-                String raza = rs.getString("raza");
-                int edad = rs.getInt("edad");
-                String descripcion = rs.getString("descripcion");
-                String estado = rs.getString("estado");
-                boolean urgente = rs.getBoolean("urgente");
-                String fotoUrl = rs.getString("foto_url");
-                byte[] fotoBytes = rs.getBytes("foto");
-                java.sql.Timestamp fechaIngreso = rs.getTimestamp("fecha_ingreso");
-
-                // 2. Usamos el molde (Animal) para crear el objeto
-                Animal animal = new Animal(id, nombre, especie, raza, edad, descripcion, estado, urgente, fotoUrl, fotoBytes, fechaIngreso);
-
-                // 3. Lo añadimos a la lista
-                listaAnimales.add(animal);
+                // Crea un objeto Animal a partir de los datos de la fila.
+                Animal animal = new Animal();
+                animal.setId(rs.getInt("id"));
+                animal.setNombre(rs.getString("nombre"));
+                animal.setEspecie(rs.getString("especie"));
+                animal.setRaza(rs.getString("raza"));
+                animal.setEdad(rs.getInt("edad"));
+                animal.setDescripcion(rs.getString("descripcion"));
+                animal.setEstado(rs.getString("estado"));
+                animal.setUrgente(rs.getBoolean("urgente"));
+                animal.setFotoUrl(rs.getString("foto_url"));
+                animal.setFechaIngreso(rs.getTimestamp("fecha_ingreso"));
+                
+                // Añade el objeto a la lista.
+                animales.add(animal);
             }
-
         } catch (SQLException e) {
-            System.err.println("Error al listar animales: " + e.getMessage());
+            // En un entorno de producción, aquí se registraría el error en un sistema de logging.
+            System.err.println("Error al listar los animales: " + e.getMessage());
         }
-
-        // Devolvemos la lista llena (o vacía si hubo error)
-        return listaAnimales;
+        return animales;
     }
 
     /**
      * Inserta un nuevo animal en la base de datos.
-     * Devuelve true si la operación tuvo éxito.
+     * La foto_url no se incluye, ya que la base de datos le asignará el valor por defecto.
+     * @param animal El objeto Animal con los datos a insertar. El ID se ignora ya que es autoincremental.
+     * @return El objeto Animal insertado, ahora con el ID generado por la base de datos, o null si falla.
      */
-    public boolean insertar(Animal a) {
-        String sql = "INSERT INTO animales (id, nombre, especie, raza, edad, descripcion, estado, urgente, foto_url, foto) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public Animal insertar(Animal animal) {
+        String sql = "INSERT INTO animales (nombre, especie, raza, edad, descripcion, estado, urgente) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = ConexionDB.conectar();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             // Statement.RETURN_GENERATED_KEYS le pide a la BD que devuelva el ID creado.
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            
+            stmt.setString(1, animal.getNombre());
+            stmt.setString(2, animal.getEspecie());
+            stmt.setString(3, animal.getRaza());
+            stmt.setInt(4, animal.getEdad());
+            stmt.setString(5, animal.getDescripcion());
+            stmt.setString(6, animal.getEstado());
+            stmt.setBoolean(7, animal.isUrgente());
 
-            stmt.setInt(1, a.getId());
-            stmt.setString(2, a.getNombre());
-            stmt.setString(3, a.getEspecie());
-            stmt.setString(4, a.getRaza());
-            stmt.setInt(5, a.getEdad());
-            stmt.setString(6, a.getDescripcion());
-            stmt.setString(7, a.getEstado());
-            stmt.setBoolean(8, a.isUrgente());
-            stmt.setString(9, a.getFotoUrl());
-            stmt.setBytes(10, a.getFoto());
+            int filasAfectadas = stmt.executeUpdate();
 
-            int filas = stmt.executeUpdate();
-            return filas > 0;
+            if (filasAfectadas > 0) {
+                // Recupera el ID generado.
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        animal.setId(generatedKeys.getInt(1));
+                        return animal; // Devuelve el animal con su nuevo ID.
+                    }
+                }
+            }
         } catch (SQLException e) {
-            System.err.println("Error al insertar animal: " + e.getMessage());
-            return false;
+            System.err.println("Error al insertar el animal: " + e.getMessage());
         }
+        return null; // Devuelve null si la inserción falla.
     }
 
     /**
-     * Actualiza la columna foto_url de un animal existente por su id.
-     * Devuelve true si se actualizó al menos una fila.
+     * Actualiza la URL de la foto de un animal específico.
+     * @param id El ID del animal a actualizar.
+     * @param nuevaRuta La nueva ruta relativa de la imagen (ej: /img/12345_foto.jpg).
+     * @return true si la actualización fue exitosa, false en caso contrario.
      */
-    public boolean actualizarFotoUrl(int id, String fotoUrl) {
+    public boolean actualizarFotoUrl(int id, String nuevaRuta) {
         String sql = "UPDATE animales SET foto_url = ? WHERE id = ?";
         try (Connection conn = ConexionDB.conectar();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, fotoUrl);
+            stmt.setString(1, nuevaRuta);
             stmt.setInt(2, id);
 
-            int filas = stmt.executeUpdate();
-            // registrar en log del servidor si es posible
-            // log directly using public helper
-            com.arcadigital.api.ServidorAPI.log("[AnimalDAO] actualizarFotoUrl id=" + id + " filas=" + filas);
-            return filas > 0;
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0; // Si se actualizó al menos una fila, devuelve true.
         } catch (SQLException e) {
-            System.err.println("Error al actualizar foto_url: " + e.getMessage());
+            System.err.println("Error al actualizar la foto_url: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Elimina un animal de la base de datos por su ID.
+     * @param id El ID del animal a eliminar.
+     * @return true si la eliminación fue exitosa, false en caso contrario.
+     */
+    public boolean eliminar(int id) {
+        String sql = "DELETE FROM animales WHERE id = ?";
+        try (Connection conn = ConexionDB.conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, id);
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("Error al eliminar el animal: " + e.getMessage());
             return false;
         }
     }
