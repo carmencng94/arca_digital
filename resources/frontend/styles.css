@@ -430,6 +430,10 @@ main {
 
     animation: slideDown 0.3s ease-out;
 
+    max-height: 90vh; /* Altura máxima: 90% de la pantalla */
+
+    overflow-y: auto; /* Si el contenido es mayor, pon scroll vertical */
+
 }
 
 
@@ -572,43 +576,247 @@ input:focus, select:focus, textarea:focus {
 
     background-color: #27ae60;
 
-}/* --- ESTILOS DE LA VENTANA MODAL MEJORADOS --- */
-
-.modal-content {
-
-    background-color: var(--card-bg-color);
-
-    margin: 2rem auto; /* Un poco de margen arriba/abajo */
-
-    padding: 2rem;
-
-    border: 1px solid #444;
-
-    width: 90%;
-
-    max-width: 500px;
-
-    border-radius: 15px;
-
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-
-    position: relative;
-
-    animation: slideDown 0.3s ease-out;
+}
 
 
 
-    /* 🔥 ESTO ES LO QUE ARREGLA EL CORTE 🔥 */
+/* --- AJUSTES DE CABECERA PARA LOGIN --- */
 
-    max-height: 90vh; /* Altura máxima: 90% de la pantalla */
+.header-top {
 
-    overflow-y: auto; /* Si el contenido es mayor, pon scroll vertical */
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    max-width: 1400px;
+
+    margin: 0 auto;
+
+    padding: 0 20px;
 
 }
 
 
 
-/* --- RESPONSIVE: AJUSTES PARA MÓVILES (Poner al final del archivo) --- */
+#user-actions {
+
+    display: flex;
+
+    align-items: center;
+
+}
+
+
+
+/* Botón de Iniciar Sesión */
+
+.btn-login {
+
+    background-color: transparent;
+
+    border: 1px solid var(--accent-color);
+
+    color: var(--accent-color);
+
+    padding: 8px 20px;
+
+    border-radius: 20px;
+
+    text-decoration: none;
+
+    font-weight: bold;
+
+    transition: 0.3s;
+
+}
+
+
+
+.btn-login:hover {
+
+    background-color: var(--accent-color);
+
+    color: white;
+
+}
+
+
+
+/* Badge de Usuario Logueado */
+
+.user-badge {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    background-color: rgba(255, 255, 255, 0.05);
+
+    padding: 5px 15px;
+
+    border-radius: 30px;
+
+}
+
+
+
+.btn-logout {
+
+    background-color: var(--urgent-color);
+
+    color: white;
+
+    border: none;
+
+    padding: 5px 12px;
+
+    border-radius: 5px;
+
+    cursor: pointer;
+
+    font-size: 0.8rem;
+
+}
+
+
+
+/* Controles dentro de las tarjetas */
+
+.animal-card__admin-controls, .upload-controls {
+
+    display: flex;
+
+    gap: 5px;
+
+    padding: 15px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+}
+
+
+
+.btn-admin {
+
+    flex: 1;
+
+    padding: 8px;
+
+    border-radius: 5px;
+
+    border: none;
+
+    cursor: pointer;
+
+    font-size: 0.8rem;
+
+    font-weight: bold;
+
+}
+
+
+
+.btn-delete { background-color: var(--urgent-color); color: white; }
+
+.btn-change-photo { background-color: var(--accent-color); color: white; }
+
+
+
+/* --- Estilos de Página de Login --- */
+
+.login-container {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    min-height: 100vh;
+
+}
+
+
+
+.login-container form {
+
+    background-color: var(--card-bg-color);
+
+    padding: 2rem;
+
+    border-radius: 12px;
+
+    box-shadow: 0 8px 16px var(--shadow-color);
+
+    width: 100%;
+
+    max-width: 400px;
+
+}
+
+
+
+.login-container h2 {
+
+    text-align: center;
+
+    margin-bottom: 1.5rem;
+
+    color: var(--accent-color);
+
+}
+
+
+
+.login-container button {
+
+    width: 100%;
+
+    padding: 12px;
+
+    background-color: var(--accent-color);
+
+    color: white;
+
+    border: none;
+
+    border-radius: 8px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    margin-top: 1rem;
+
+}
+
+
+
+.login-container button:hover {
+
+    background-color: #008ecc;
+
+}
+
+
+
+#login-error {
+
+    color: var(--urgent-color);
+
+    margin-top: 1rem;
+
+    text-align: center;
+
+}
+
+
+
+/* --- RESPONSIVE: AJUSTES PARA MÓVILES --- */
 
 @media (max-width: 600px) {
 
@@ -636,11 +844,11 @@ input:focus, select:focus, textarea:focus {
 
         width: 95%;      
 
-        margin: 1rem auto; /* Menos margen vertical */
+        margin: 1rem auto;
 
         padding: 1.2rem;
 
-        max-height: 85vh; /* Un poco más pequeño en móviles para dejar espacio */
+        max-height: 85vh;
 
     }
 
@@ -653,4 +861,25 @@ input:focus, select:focus, textarea:focus {
         width: 100%;      
 
         padding: 12px 5px;
+
     }
+
+
+
+    .animal-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+
+    .header-top {
+
+        flex-direction: column;
+
+        gap: 15px;
+
+    }
+
+}

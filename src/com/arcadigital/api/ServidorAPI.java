@@ -62,7 +62,7 @@ public class ServidorAPI {
             String path = exchange.getRequestURI().getPath();
             if (path.equals("/")) path = "/index.html"; // Redirigir la raíz a index.html
 
-            String filePath = PROJECT_ROOT + File.separator + "Frontend" + path;
+            String filePath = PROJECT_ROOT + File.separator + "resources" + File.separator + "frontend" + path;
             File file = new File(filePath);
 
             if (file.exists() && !file.isDirectory()) {
@@ -195,7 +195,9 @@ public class ServidorAPI {
 
                     // Crear un nombre de archivo único para evitar sobreescrituras.
                     String uniqueFilename = System.currentTimeMillis() + "_" + filename.replaceAll("[^a-zA-Z0-9.-]", "_");
-                    File targetFile = new File("Frontend/img", uniqueFilename);
+                    File uploadDir = new File("resources/frontend/img");
+                    if (!uploadDir.exists()) uploadDir.mkdirs();
+                    File targetFile = new File(uploadDir, uniqueFilename);
 
                     // Guardar el cuerpo de la petición (el archivo) en el disco.
                     Files.copy(exchange.getRequestBody(), targetFile.toPath());
