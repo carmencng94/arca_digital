@@ -2,7 +2,7 @@
 
 Proyecto de registro y gestión de animales rescatados con una interfaz web moderna.
 
-## 📁 Estructura de Directorios (Profesional)
+##  Estructura de Directorios (Profesional)
 
 ```
 arca_digital/
@@ -41,7 +41,7 @@ arca_digital/
 └── README.md                     # Este archivo
 ```
 
-## 🚀 Compilación y Ejecución
+##  Compilación y Ejecución
 
 ### Opción 1: Compilación manual
 ```powershell
@@ -61,7 +61,7 @@ java -cp "out;lib\mariadb-java-client-3.5.7.jar" com.arcadigital.api.ServidorAPI
 ./build.sh
 ```
 
-## 📝 Configuración
+##  Configuración
 
 ### Base de Datos
 - **Host:** localhost
@@ -78,7 +78,7 @@ Edita `src/com/arcadigital/database/ConexionDB.java` para cambiar estos valores.
 
 Edita `src/com/arcadigital/api/ServidorAPI.java` para cambiar el puerto.
 
-## 🔑 Credenciales de Prueba
+##  Credenciales de Prueba
 
 | Usuario | Contraseña |
 |---------|-----------|
@@ -106,14 +106,14 @@ Edita `src/com/arcadigital/api/ServidorAPI.java` para cambiar el puerto.
 - **Base de Datos:** MariaDB
 - **Servidor:** HttpServer nativo de Java
 
-## 📝 Cambios Recientes
+##  Cambios Recientes
 
-- ✅ Reorganización de estructura (separación clara src/resources/out)
-- ✅ Actualización de rutas en ServidorAPI.java
-- ✅ Estructuración profesional de archivos frontend (carpeta js/)
-- ✅ Compilación centralizada en carpeta `out/`
+- Reorganización de estructura (separación clara src/resources/out)
+- Actualización de rutas en ServidorAPI.java
+- Estructuración profesional de archivos frontend (carpeta js/)
+-  Compilación centralizada en carpeta `out/`
 
-## 🤝 Contribución
+##  Contribución
 
 Para cambios futuros:
 1. Modifica archivos en `src/`
