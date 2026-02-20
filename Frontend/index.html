@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Este es el HTML principal del dashboard de Arca Digital. -->
+    <!-- Contiene el contenedor donde se inyecta el JS y los modales. -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arca Digital - Dashboard</title>
@@ -10,6 +12,7 @@
 <body>
 
     <header>
+        <!-- Cabecera con título y botón para abrir el modal de nuevo animal. -->
         <div class="header-top">
             <h1>Arca Digital</h1>
             <div id="user-actions"></div>
@@ -20,6 +23,7 @@
     </header>
 
     <main>
+        <!-- Aquí se mostrarán mensajes de error y las tarjetas de animales -->
         <div id="error-message" class="error-message" style="display: none;"></div>
         <div id="animal-grid" class="animal-grid">
             </div>
@@ -99,10 +103,12 @@
     </div>
 
     <footer>
+        <!-- Pie de página simple con nombre del proyecto -->
         <p>Proyecto Arca Digital - Panel de Control</p>
     </footer>
 
     <!-- Modal Detalle fuera del contenedor principal -->
+    <!-- Se mueve aquí para que el CSS pueda posicionarlo por encima -->
     <div id="modalDetalle" class="modal modal-detalle" style="display:none;">
         <div class="modal-content modal-content-detalle">
             <span class="close-detalle">&times;</span>

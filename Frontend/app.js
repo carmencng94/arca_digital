@@ -1,4 +1,10 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
+﻿// En este archivo JavaScript controlo la lógica del dashboard
+// y las interacciones con el servidor. Lo cargo en index.html y
+// a partir de aquí manipulo el DOM (documento html) y hago peticiones
+// fetch para obtener/crear/editar animales.
+// Sin este script la página sería estática y no ocurriría nada.
+
+document.addEventListener('DOMContentLoaded', () => {
     const API_URL = 'http://localhost:8080/api';
     const animalGrid = document.getElementById('animal-grid');
     const user = JSON.parse(sessionStorage.getItem('user'));
@@ -23,7 +29,11 @@
         }
 
     /**
-     * Configura los listeners de la modal de registro sin depender de funciones globales.
+     * Configura los escuchadores (listeners) para abrir y cerrar la ventana
+     * emergente (modal) de registro de animal. Uso funciones locales en vez
+     * de globales para mantener el código ordenado.
+     *
+     * Si no llamo a esto, el botón no haría nada y no podría ingresar animales.
      */
     const setupModalListeners = () => {
         // Abrir modal con addEventListener
@@ -62,6 +72,10 @@
 
     /**
      * Muestra el detalle de un animal en un modal ampliado.
+     *
+     * Recibo el objeto animal (datos traídos desde la API), construyo el HTML
+     * dinámicamente y lo inserto en el DOM. Si no tuviera esto el usuario
+     * sólo vería tarjetas sin poder explorar más información.
      */
     const mostrarDetalle = (animal) => {
         const detalleContenido = document.getElementById('detalleContenido');
@@ -127,6 +141,10 @@
 
     /**
      * Inicializa la carga de animales al abrir el dashboard.
+     *
+     * Hace una petición GET a la API, recibe el JSON y luego llama a
+     * createAnimalCard para cada elemento. Si falla la conexión muestro
+     * un mensaje de error al usuario.
      */
     const fetchAnimals = async () => {
         try {
@@ -151,6 +169,11 @@
 
     /**
      * Crea la tarjeta del animal con interactividad para ver detalles.
+     *
+     * Construye un elemento div, rellena su innerHTML con los datos
+     * del animal y añade escuchadores para ver detalle, eliminar y subir
+     * foto si hay un usuario logueado. Todo el DOM se genera aquí, lo que
+     * facilita modificar el diseño en un solo lugar.
      */
     const createAnimalCard = (animal) => {
         const card = document.createElement('div');
@@ -214,6 +237,9 @@
 
     /**
      * Elimina un animal por ID.
+     *
+     * Envía DELETE a la API. Si la operación sale bien, borro la tarjeta del DOM
+     * y recargo la lista llamando a fetchAnimals. Si no, muestro un error.
      */
     const eliminarAnimal = async (id) => {
         try {
@@ -235,6 +261,10 @@
 
     /**
      * Sube una foto al servidor y retorna la URL.
+     *
+     * Recibo un objeto File (desde un <input type=file>), hago POST a /upload
+     * con el contenido binario y un encabezado X-Filename. Devuelvo la ruta
+     * que el servidor me responde o un valor por defecto si falla.
      */
     const subirFoto = async (file) => {
         if (!file) return '/img/rex.png';
@@ -261,6 +291,10 @@
 
     /**
      * Sube una foto y actualiza la URL del animal ya registrado.
+     *
+     * Aprovecho subirFoto para obtener la URL y luego hago un PUT
+     * a la API con el id y la nueva ruta. Finalmente recargo la página
+     * para que el cambio se vea.
      */
     const subirYActualizarFoto = async (animalId, file) => {
         try {
@@ -285,6 +319,10 @@
 
     /**
      * Configura el listener del formulario de registro.
+     *
+     * Atiende el evento submit, previene el comportamiento normal y
+     * construye un objeto con los valores del formulario para enviarlo
+     * a la API. También maneja la subida de la foto si se selecciona una.
      */
     const setupFormListener = () => {
         if (formAnimal) {

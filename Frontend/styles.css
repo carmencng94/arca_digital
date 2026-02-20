@@ -1,3 +1,8 @@
+/* ===== Estilos del modal y página ===== */
+/* En este archivo defino todos los estilos de la aplicación. */
+/* Si lo borro la página se verá sin formato, con colores y fuentes
+   bruscas por defecto. */
+
 /* ===== MODAL DETALLE PROFESIONAL ===== */
 .modal {
     display: none;
@@ -113,6 +118,7 @@
 /* ===== ARCA DIGITAL - ESTILOS COMPLETOS ===== */
 
 /* --- Reset y Variables Globales --- */
+/* Quito márgenes y paddings por defecto y defino colores que uso */
 :root {
     --bg-color: #1a1a1a;
     --card-bg-color: #2c2c2c;
@@ -142,6 +148,7 @@ body {
 }
 
 /* --- Cabecera --- */
+/* Aquí estilizo la parte superior con el título del dashboard */
 header {
     text-align: center;
     padding: 2rem 1rem;
@@ -189,6 +196,8 @@ main {
 }
 
 /* --- Grid de Animales --- */
+/* Contenedor de las tarjetas, uso un grid flexible para que se
+   ajusten al ancho de la pantalla. */
 .animal-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -206,6 +215,7 @@ main {
 }
 
 /* --- Tarjeta de Animal --- */
+/* Cada tarjeta tiene sombra, fondo oscuro y se anima al pasar el cursor */
 .animal-card {
     background-color: var(--card-bg-color);
     border-radius: 16px;

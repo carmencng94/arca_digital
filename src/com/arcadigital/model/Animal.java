@@ -1,5 +1,9 @@
 package com.arcadigital.model;
 
+// Clase que representa un animal en el sistema.
+// Uso este objeto para pasar datos entre la base de datos, el
+// servidor y el frontend. Si no existiera, tendría que manejar
+// filas de SQL o JSON crudo todo el tiempo, lo cual sería un dolor.
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
@@ -20,7 +24,9 @@ public class Animal {
     private Timestamp fechaIngreso;
 
     public Animal() {
-        // Constructor vacío es útil para librerías de serialización y para crear objetos paso a paso.
+        // Constructor vacío me permite instanciar el objeto y luego
+        // llamar a los setters uno por uno. Lo necesito también cuando
+        // convierto desde JSON con alguna biblioteca automática.
     }
 
     // Getters y Setters...
@@ -54,6 +60,10 @@ public class Animal {
      * @return Fecha formateada o un string vacío si es nula.
      */
     public String getFechaIngresoFormateada() {
+        // Devuelvo la fecha en formato legible por humanos.
+        // Si no pongo este método, el frontend tendría que manejar
+        // la conversión de Timestamp a texto, lo cual está fuera de su
+        // responsabilidad.
         if (fechaIngreso == null) {
             return "N/A";
         }
@@ -66,6 +76,10 @@ public class Animal {
      * @return El string entre comillas y con caracteres especiales escapados.
      */
     private String escapeJson(String value) {
+        // Este método me asegura que cualquier comilla o caracter raro
+        // dentro de un campo no rompa el JSON cuando llamo a toJson().
+        // Si lo quitara, un nombre como "O'Connor" podría generar
+        // un JSON inválido y la app fallaría al parsearlo.
         if (value == null) {
             return "null";
         }
@@ -83,6 +97,10 @@ public class Animal {
      * @return Un String con la representación JSON del objeto.
      */
     public String toJson() {
+        // Construyo una cadena JSON a mano usando escapeJson para cada campo.
+        // La uso en el API cuando devuelvo animales; si no tuviera este método
+        // tendría que repetir esta construcción en otro lugar o añadir una
+        // dependencia de librería.
         return new StringBuilder()
             .append("{")
             .append("\"id\": ").append(id).append(",")

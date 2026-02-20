@@ -1,5 +1,9 @@
 package com.arcadigital.database;
 
+// Aquí centralizo la configuración y creación de la conexión hacia
+// MariaDB. Todos los demás clases llaman a ConexionDB.conectar() en
+// vez de repetir estos datos.
+// Si cambio la contraseña o la URL solamente modifico este archivo.
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -25,6 +29,8 @@ public class ConexionDB {
      * @return Connection Objeto que representa la conexión activa, o null si falla.
      */
     public static Connection conectar() {
+        // Intento abrir la conexión paso a paso y atrapo errores para
+        // que el resto de la aplicación no explote.
         Connection conexion = null;
 
         try {
@@ -48,6 +54,8 @@ public class ConexionDB {
             e.printStackTrace();
         }
 
+        // Devolveré null si no se pudo conectar, el código llamante debe
+        // comprobarlo.
         return conexion;
     }
 }

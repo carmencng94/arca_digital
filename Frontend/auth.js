@@ -1,9 +1,14 @@
+// Este script controla quién está logueado y qué botones ve el usuario.
+// Lo incluyo en todas las páginas para mantener el estado de sesión.
+// Sin él el dashboard nunca sabría si mostrar opciones de administrador.
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- GESTIÓN DE AUTENTICACIÓN ---
     const user = JSON.parse(sessionStorage.getItem('user'));
     const isLoginPage = window.location.pathname.endsWith('login.html');
 
-    // Si el usuario ya está logueado y está en la página de login, lo mandamos al dashboard.
+    // Si el usuario ya está logueado y está en la página de login, lo mando
+    // inmediatamente al dashboard porque no necesita volver a ingresar.
     if (user && isLoginPage) {
         window.location.href = 'index.html';
         return;
