@@ -1,3 +1,30 @@
+## Cambios 20 de febrero de 2026: Modal de Detalle y Expansi贸n de Datos
+
+### Modal de Detalle Profesional
+Se implement贸 un modal profesional para mostrar la informaci贸n detallada de cada animal. El modal se encuentra fuera del contenedor principal (`#modalDetalle`) para evitar conflictos de estilos y garantizar su correcta superposici贸n sobre el dashboard. El modal se activa al pulsar el bot贸n "Ver Detalle" de cada tarjeta y muestra los siguientes campos:
+
+- Nombre
+- Especie
+- Raza
+- Edad
+- Descripci贸n
+- Medicaci贸n
+- Estado de castraci贸n
+- Estado general
+- Urgencia
+- Fecha de ingreso
+- Foto
+
+El modal utiliza un z-index alto (2000) y estilos dedicados para asegurar visibilidad y profesionalismo.
+
+### Nueva estructura de datos en Animal
+El modelo `Animal` y la tabla `animales` ahora incluyen los campos:
+
+- `descripcion` (TEXT): descripci贸n detallada, historial y car谩cter
+- `medicacion` (TEXT): medicamentos actuales
+- `castrado` (BOOLEAN): indica si el animal est谩 castrado o esterilizado
+
+Estos campos se gestionan en el backend (Java, SQL) y frontend (formulario, modal de detalle). Los m茅todos de inserci贸n y consulta en el DAO han sido adaptados para procesar estos atributos.
 # 馃摎 Documentaci贸n T茅cnica Profunda - Arca Digital
 
 **Versi贸n:** 1.0  
@@ -2068,7 +2095,7 @@ Versi贸n: 1.0 | Fecha: 17/02/2026
 
 ---
 
-## ARQUITECTURA DE DATOS AMPLIADA (Actualizaci髇 20 de Febrero de 2026)
+## ARQUITECTURA DE DATOS AMPLIADA (Actualizaci锟絥 20 de Febrero de 2026)
 
 ### Modelo de Datos - Tabla animales (Esquema Completo)
 
@@ -2080,7 +2107,7 @@ La tabla `nimales` en MariaDB ahora contiene los siguientes campos:
 | nombre | VARCHAR(100) | No | - | Nombre del animal |
 | especie | VARCHAR(50) | No | - | Especie (Perro, Gato, Otro) |
 | raza | VARCHAR(50) | Si | NULL | Raza especifica |
-| edad | INT | Si | 0 | Edad en a駉s |
+| edad | INT | Si | 0 | Edad en a锟給s |
 | descripcion | TEXT | Si | NULL | Descripcion detallada, historial y caracter |
 | medicacion | TEXT | Si | NULL | Medicamentos que esta tomando (NUEVO CAMPO) |
 | castrado | BOOLEAN | Si | FALSE | Si ha sido castrado/esterilizado (NUEVO CAMPO) |

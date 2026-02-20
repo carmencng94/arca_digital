@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
     const API_URL = 'http://localhost:8080/api';
     const animalGrid = document.getElementById('animal-grid');
     const user = JSON.parse(sessionStorage.getItem('user'));
@@ -8,19 +8,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.querySelector(".close");
 
     // Modal de detalle
-    let detalleModal = document.getElementById('detalleModal');
-    if (!detalleModal) {
-        detalleModal = document.createElement('div');
-        detalleModal.id = 'detalleModal';
-        detalleModal.className = 'modal modal-detalle';
-        detalleModal.innerHTML = `
-            <div class="modal-content modal-content-detalle">
-                <span class="close-detalle">&times;</span>
-                <div id="detalleContenido"></div>
-            </div>
-        `;
-        document.body.appendChild(detalleModal);
-    }
+        let detalleModal = document.getElementById('modalDetalle');
+        if (!detalleModal) {
+            detalleModal = document.createElement('div');
+            detalleModal.id = 'modalDetalle';
+            detalleModal.className = 'modal modal-detalle';
+            detalleModal.innerHTML = `
+                <div class="modal-content modal-content-detalle">
+                    <span class="close-detalle">&times;</span>
+                    <div id="detalleContenido"></div>
+                </div>
+            `;
+            document.body.appendChild(detalleModal);
+        }
 
     /**
      * Configura los listeners de la modal de registro sin depender de funciones globales.
@@ -163,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
         card.innerHTML = `
             <div class="animal-card__container">
                 <img class="animal-card__image" src="${animal.fotoUrl}" alt="Foto de ${animal.nombre}" onerror="this.src='/img/rex.png';">
-                <div class="animal-card__overlay"></div>
                 <div class="animal-card__content">
                     <span class="animal-card__status ${estadoClass}">${animal.estado.replace('_', ' ')}</span>
                     ${animal.urgente ? '<span class="animal-card__urgente">URGENTE</span>' : ''}
@@ -171,22 +170,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p class="animal-card__especie">${animal.especie}</p>
                     <ul class="animal-card__details">
                         <li><strong>Raza:</strong> ${animal.raza || 'N/A'}</li>
-                        <li><strong>Edad:</strong> ${animal.edad} años</li>
+                        <li><strong>Edad:</strong> ${animal.edad} a&ntilde;os</li>
+                        <li><strong>Descripci&oacute;n:</strong> ${animal.descripcion || 'Sin descripci&oacute;n'}</li>
+                        <li><strong>Medicaci&oacute;n:</strong> ${animal.medicacion || 'Ninguna'}</li>
+                        <li><strong>Castrado:</strong> ${animal.castrado ? 'S&iacute;' : 'No'}</li>
+                        <li><strong>Urgente:</strong> ${animal.urgente ? 'Sí' : 'No'}</li>
+                        <li><strong>Fecha de ingreso:</strong> ${animal.fechaIngreso || 'N/A'}</li>
                     </ul>
-                    <button type="button" class="btn-ver-detalle">Ver Detalle</button>
                 </div>
             </div>`;
-
-        // Hacer la tarjeta clickable para ver detalle
-        const verDetalleBtn = card.querySelector('.btn-ver-detalle');
-        if (verDetalleBtn) {
-            verDetalleBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log("Mostrando detalle de:", animal.nombre);
-                mostrarDetalle(animal);
-            });
-        }
 
         // Cargar controles de admin si está logueado
         if (user) {

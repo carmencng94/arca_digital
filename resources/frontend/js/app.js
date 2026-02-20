@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
     const API_URL = 'http://localhost:8080/api';
     const animalGrid = document.getElementById('animal-grid');
     const user = JSON.parse(sessionStorage.getItem('user'));
@@ -171,22 +171,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p class="animal-card__especie">${animal.especie}</p>
                     <ul class="animal-card__details">
                         <li><strong>Raza:</strong> ${animal.raza || 'N/A'}</li>
-                        <li><strong>Edad:</strong> ${animal.edad} años</li>
+                        <li><strong>Edad:</strong> ${animal.edad} a&ntilde;os</li>
+                        <li><strong>Descripci&oacute;n:</strong> ${animal.descripcion || 'Sin descripci&oacute;n'}</li>
+                        <li><strong>Medicaci&oacute;n:</strong> ${animal.medicacion || 'Ninguna'}</li>
+                        <li><strong>Castrado:</strong> ${animal.castrado ? 'S&iacute;' : 'No'}</li>
+                        <li><strong>Urgente:</strong> ${animal.urgente ? 'Sí' : 'No'}</li>
+                        <li><strong>Fecha de ingreso:</strong> ${animal.fechaIngreso || 'N/A'}</li>
                     </ul>
-                    <button type="button" class="btn-ver-detalle">Ver Detalle</button>
                 </div>
             </div>`;
-
-        // Hacer la tarjeta clickable para ver detalle
-        const verDetalleBtn = card.querySelector('.btn-ver-detalle');
-        if (verDetalleBtn) {
-            verDetalleBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log("Mostrando detalle de:", animal.nombre);
-                mostrarDetalle(animal);
-            });
-        }
 
         // Cargar controles de admin si está logueado
         if (user) {

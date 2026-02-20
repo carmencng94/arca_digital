@@ -1,3 +1,9 @@
+### D铆a 20 de febrero de 2026: Correcci贸n y mejora de vista de detalle
+- Se corrigi贸 el fallo donde el modal de detalle no mostraba los datos al pulsar "Ver detalle" en la tarjeta de animal.
+- Se implement贸 un modal profesional para la vista detallada, ubicado fuera del contenedor principal para evitar conflictos de CSS y garantizar superposici贸n visual.
+- Se a帽adieron los campos `descripcion`, `medicacion` y `castrado` a la base de datos y modelo de Animal, asegurando su gesti贸n en el backend y frontend.
+- Se actualizaron los estilos para el modal de detalle, asegurando un z-index alto y dise帽o profesional.
+- Se document贸 el funcionamiento y la estructura de datos ampliada en la documentaci贸n t茅cnica.
 # 馃摂 DIARIO DE DESARROLLO - ARCA DIGITAL
 
 ## Introducci贸n
@@ -3486,7 +3492,7 @@ EXTRAS:
 
 ## FASE ADICIONAL: MEJORAS AVANZADAS (20 de Febrero de 2026)
 
-### Ampliaci髇 de la Base de Datos y Modelo
+### Ampliaci锟絥 de la Base de Datos y Modelo
 
 #### Cambios en SQL:
 - Agregados campos nuevos a la tabla animales:
@@ -3512,7 +3518,7 @@ EXTRAS:
 
 ### Mejoras en el Dashboard (Frontend)
 
-#### Refactorizaci髇 en app.js:
+#### Refactorizaci锟絥 en app.js:
 - Funcion mostrarDetalle() mejorada:
   - Ahora muestra 8 items en la grid de detalles (incluyendo Castrado y Medicacion)
   - Medicacion se muestra como 'Ninguna' si no existe

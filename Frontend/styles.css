@@ -1,3 +1,115 @@
+/* ===== MODAL DETALLE PROFESIONAL ===== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    background: rgba(0,0,0,0.7);
+    transition: opacity 0.2s;
+}
+
+.modal-content {
+    background: #23272f;
+    margin: 5% auto;
+    padding: 2.5rem 2rem;
+    border-radius: 18px;
+    max-width: 520px;
+    box-shadow: 0 8px 32px 0 rgba(0,0,0,0.35);
+    position: relative;
+    color: var(--text-color);
+    animation: modalIn 0.25s;
+}
+
+.modal-content-detalle {
+    max-width: 600px;
+    min-width: 320px;
+    padding: 2.5rem 2rem 2rem 2rem;
+}
+
+.close-detalle {
+    color: #fff;
+    position: absolute;
+    top: 18px;
+    right: 24px;
+    font-size: 2.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 2100;
+    transition: color 0.2s;
+}
+.close-detalle:hover {
+    color: var(--accent-color);
+}
+
+.detalle-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+.detalle-imagen {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    background: #222;
+}
+.detalle-titulo h1 {
+    font-size: 2.1rem;
+    margin-bottom: 0.2rem;
+    color: var(--accent-color);
+}
+.detalle-titulo p {
+    color: #bbb;
+    font-size: 1.1rem;
+}
+.detalle-body {
+    margin-top: 1.2rem;
+}
+.detalle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem 2.2rem;
+    margin-bottom: 1.2rem;
+}
+.detalle-item label {
+    font-weight: 600;
+    color: var(--accent-color);
+    font-size: 0.98rem;
+}
+.detalle-item p {
+    margin: 0.1rem 0 0.2rem 0;
+    color: #f0f0f0;
+    font-size: 1.05rem;
+}
+.detalle-descripcion label {
+    font-weight: 600;
+    color: var(--accent-color);
+    font-size: 1.01rem;
+}
+.detalle-descripcion p {
+    color: #e0e0e0;
+    margin: 0.2rem 0 0.5rem 0;
+    font-size: 1.08rem;
+}
+.detalle-fecha label {
+    font-weight: 600;
+    color: var(--accent-color);
+    font-size: 0.97rem;
+}
+.detalle-fecha p {
+    color: #b0b0b0;
+    font-size: 0.98rem;
+}
+@keyframes modalIn {
+    from { opacity: 0; transform: translateY(-40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 /* ===== ARCA DIGITAL - ESTILOS COMPLETOS ===== */
 
 /* --- Reset y Variables Globales --- */
@@ -106,8 +218,9 @@ main {
 }
 
 .animal-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 16px 40px rgba(0, 168, 255, 0.2);
+    background: #222;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    /* Sin animación ni desplazamiento */
 }
 
 .animal-card__container {
@@ -131,18 +244,11 @@ main {
 }
 
 .animal-card__overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    display: none;
 }
 
 .animal-card:hover .animal-card__overlay {
-    opacity: 0.4;
+    display: none;
 }
 
 .animal-card__content {
@@ -150,6 +256,8 @@ main {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    position: relative;
+    z-index: 2;
 }
 
 .animal-card__status {
@@ -235,6 +343,8 @@ main {
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 3;
 }
 
 .btn-ver-detalle:hover {
