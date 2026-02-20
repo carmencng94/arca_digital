@@ -100,7 +100,7 @@ public class ServidorAPI {
             // Configurar cabeceras para CORS, permitiendo el acceso desde cualquier origen.
             exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
             exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-            exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type");
+            exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
             // El navegador envía una petición OPTIONS (pre-flight) para verificar permisos CORS.
             if ("OPTIONS".equals(exchange.getRequestMethod())) {
@@ -121,17 +121,27 @@ public class ServidorAPI {
 
                 } else if ("POST".equals(method)) {
                     // --- CREAR UN NUEVO ANIMAL ---
+                    // Permitir POST desde cualquier cliente autenticado (admin, voluntario, etc.)
                     String requestBody = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
                     Map<String, String> params = parseJsonBody(requestBody);
                     
+                    // Validar campos requeridos
+                    if (!params.containsKey("nombre") || params.get("nombre").trim().isEmpty()) {
+                        sendResponse(exchange, 400, "{\"error\":\"El campo 'nombre' es requerido\"}");
+                        return;
+                    }
+
                     Animal nuevo = new Animal();
                     nuevo.setNombre(params.get("nombre"));
-                    nuevo.setEspecie(params.get("especie"));
-                    nuevo.setRaza(params.get("raza"));
+                    nuevo.setEspecie(params.getOrDefault("especie", "Otro"));
+                    nuevo.setRaza(params.getOrDefault("raza", ""));
                     nuevo.setEdad(Integer.parseInt(params.getOrDefault("edad", "0")));
-                    nuevo.setDescripcion(params.get("descripcion"));
-                    nuevo.setEstado(params.get("estado"));
+                    nuevo.setDescripcion(params.getOrDefault("descripcion", ""));
+                    nuevo.setMedicacion(params.getOrDefault("medicacion", null));
+                    nuevo.setCastrado(Boolean.parseBoolean(params.getOrDefault("castrado", "false")));
+                    nuevo.setEstado(params.getOrDefault("estado", "RESCATADO"));
                     nuevo.setUrgente(Boolean.parseBoolean(params.getOrDefault("urgente", "false")));
+                    nuevo.setFotoUrl(params.getOrDefault("fotoUrl", "/img/rex.png")); // Asignar fotoUrl con defecto
                     
                     Animal insertado = dao.insertar(nuevo);
                     if (insertado != null) {

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userActionsDiv) {
             userActionsDiv.innerHTML = `
                 <div class="user-badge">
-                    <span>👤 ${user.username}</span>
+                    <span>${user.username}</span>
                     <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
                 </div>`;
         }
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         // MODO PÚBLICO: Mostrar botón de acceso si no se ha iniciado sesión
         if (userActionsDiv && !isLoginPage) {
-            userActionsDiv.innerHTML = `<a href="login.html" class="btn-login">🔒 Iniciar Sesión</a>`;
+            userActionsDiv.innerHTML = `<a href="login.html" class="btn-login">Iniciar Sesión</a>`;
         }
         
         // Asegurar que el botón de registro esté oculto para invitados

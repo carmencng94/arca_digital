@@ -1,3 +1,6 @@
+# Animal.java - Modelo de Datos Completo
+
+```java
 package com.arcadigital.model;
 
 import java.sql.Timestamp;
@@ -101,3 +104,11 @@ public class Animal {
             .toString();
     }
 }
+```
+
+## Cambios principales:
+
+- **Nuevo campo `medicacion`**: TEXT - Almacena los medicamentos del animal
+- **Nuevo campo `castrado`**: BOOLEAN - Indica si el animal ha sido castrado/esterilizado
+- **Getters y Setters**: `getMedicacion()`, `setMedicacion()`, `isCastrado()`, `setCastrado()`
+- **toJson()**: Actualizado para incluir ambos campos en la serialización JSON

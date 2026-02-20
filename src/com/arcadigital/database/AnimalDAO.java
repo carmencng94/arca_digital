@@ -40,6 +40,8 @@ public class AnimalDAO {
                 animal.setRaza(rs.getString("raza"));
                 animal.setEdad(rs.getInt("edad"));
                 animal.setDescripcion(rs.getString("descripcion"));
+                animal.setMedicacion(rs.getString("medicacion"));
+                animal.setCastrado(rs.getBoolean("castrado"));
                 animal.setEstado(rs.getString("estado"));
                 animal.setUrgente(rs.getBoolean("urgente"));
                 animal.setFotoUrl(rs.getString("foto_url"));
@@ -57,12 +59,11 @@ public class AnimalDAO {
 
     /**
      * Inserta un nuevo animal en la base de datos.
-     * La foto_url no se incluye, ya que la base de datos le asignará el valor por defecto.
      * @param animal El objeto Animal con los datos a insertar. El ID se ignora ya que es autoincremental.
      * @return El objeto Animal insertado, ahora con el ID generado por la base de datos, o null si falla.
      */
     public Animal insertar(Animal animal) {
-        String sql = "INSERT INTO animales (nombre, especie, raza, edad, descripcion, estado, urgente) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO animales (nombre, especie, raza, edad, descripcion, medicacion, castrado, estado, urgente, foto_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = ConexionDB.conectar();
              // Statement.RETURN_GENERATED_KEYS le pide a la BD que devuelva el ID creado.
@@ -73,8 +74,11 @@ public class AnimalDAO {
             stmt.setString(3, animal.getRaza());
             stmt.setInt(4, animal.getEdad());
             stmt.setString(5, animal.getDescripcion());
-            stmt.setString(6, animal.getEstado());
-            stmt.setBoolean(7, animal.isUrgente());
+            stmt.setString(6, animal.getMedicacion());
+            stmt.setBoolean(7, animal.isCastrado());
+            stmt.setString(8, animal.getEstado());
+            stmt.setBoolean(9, animal.isUrgente());
+            stmt.setString(10, animal.getFotoUrl() != null ? animal.getFotoUrl() : "/img/rex.png");
 
             int filasAfectadas = stmt.executeUpdate();
 

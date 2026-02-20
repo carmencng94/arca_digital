@@ -1,3 +1,13 @@
+# CODIGO COMPLETO: app.js
+
+Este archivo contiene la lógica completa del dashboard frontend.
+
+## Ubicacion
+`resources/frontend/js/app.js`
+
+## Contenido Completo
+
+```javascript
 document.addEventListener('DOMContentLoaded', () => {
     const API_URL = 'http://localhost:8080/api';
     const animalGrid = document.getElementById('animal-grid');
@@ -22,11 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(detalleModal);
     }
 
-    /**
-     * Configura los listeners de la modal de registro sin depender de funciones globales.
-     */
     const setupModalListeners = () => {
-        // Abrir modal con addEventListener
         if (btnAbrirModal) {
             btnAbrirModal.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -34,14 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Cerrar modal con botón X
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
                 modal.style.display = "none";
             });
         }
 
-        // Cerrar modal al hacer clic fuera
         window.addEventListener('click', (event) => {
             if (event.target === modal) {
                 modal.style.display = "none";
@@ -51,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Cerrar modal de detalle
         const closeDetalle = document.querySelector('.close-detalle');
         if (closeDetalle) {
             closeDetalle.addEventListener('click', () => {
@@ -60,9 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /**
-     * Muestra el detalle de un animal en un modal ampliado.
-     */
     const mostrarDetalle = (animal) => {
         const detalleContenido = document.getElementById('detalleContenido');
         const castrado = animal.castrado ? 'Si' : 'No';
@@ -125,9 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
         detalleModal.style.display = "block";
     };
 
-    /**
-     * Inicializa la carga de animales al abrir el dashboard.
-     */
     const fetchAnimals = async () => {
         try {
             const response = await fetch(`${API_URL}/animales`);
@@ -149,9 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /**
-     * Crea la tarjeta del animal con interactividad para ver detalles.
-     */
     const createAnimalCard = (animal) => {
         const card = document.createElement('div');
         card.className = 'animal-card';
@@ -177,7 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>`;
 
-        // Hacer la tarjeta clickable para ver detalle
         const verDetalleBtn = card.querySelector('.btn-ver-detalle');
         if (verDetalleBtn) {
             verDetalleBtn.addEventListener('click', function(e) {
@@ -188,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Cargar controles de admin si está logueado
         if (user) {
             const adminControls = document.createElement('div');
             adminControls.className = 'upload-controls';
@@ -199,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             card.appendChild(adminControls);
 
-            // Listener para eliminar con addEventListener
             adminControls.querySelector('.btn-delete').addEventListener('click', (e) => {
                 e.stopPropagation();
                 if(confirm(`Eliminar a ${animal.nombre}? Esta acción no se puede deshacer.`)) {
@@ -207,7 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Listener para subir foto con addEventListener
             const inputFile = adminControls.querySelector('.input-file-upload');
             adminControls.querySelector('.btn-change-photo').addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -220,9 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return card;
     };
 
-    /**
-     * Elimina un animal por ID.
-     */
     const eliminarAnimal = async (id) => {
         try {
             const resp = await fetch(`${API_URL}/animales/${id}`, { method: 'DELETE' });
@@ -241,9 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /**
-     * Sube una foto al servidor y retorna la URL.
-     */
     const subirFoto = async (file) => {
         if (!file) return '/img/rex.png';
 
@@ -267,9 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /**
-     * Sube una foto y actualiza la URL del animal ya registrado.
-     */
     const subirYActualizarFoto = async (animalId, file) => {
         try {
             const fotoUrl = await subirFoto(file);
@@ -291,22 +272,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    /**
-     * Configura el listener del formulario de registro.
-     */
     const setupFormListener = () => {
         if (formAnimal) {
             formAnimal.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
-                // Validar que exista usuario logueado
                 if (!user) {
                     alert('Debes iniciar sesión para registrar un animal.');
                     return;
                 }
 
                 try {
-                    // Obtener la foto si existe
                     const fotoInput = document.getElementById('fotoAnimal');
                     let fotoUrl = '/img/rex.png';
                     
@@ -356,8 +332,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Inicializar todos los listeners y cargar datos
     setupModalListeners();
     setupFormListener();
     fetchAnimals();
 });
+```
+
+## Caracteristicas Principales
+
+1. **Gestion de Animales**: Fetch, crear, editar, eliminar
+2. **Modal Expandido**: Muestra 8 items de informacion (incluyendo medicacion y castrado)
+3. **Upload de Fotos**: Soporta cambio de foto en animales existentes
+4. **Autenticacion Simple**: Control de rol mediante sessionStorage
+5. **Validacion**: Verificación de usuario logueado antes de operaciones
+6. **Manejo de Errores**: Try-catch y console.log para depuracion
+7. **Sin Emojis**: Codigo limpio sin simbolos decorativos

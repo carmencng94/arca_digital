@@ -18,6 +18,8 @@ CREATE TABLE animales (
     raza VARCHAR(50) COMMENT 'Raza específica del animal',
     edad INT DEFAULT 0 COMMENT 'Edad del animal en años',
     descripcion TEXT COMMENT 'Descripción detallada, historial y carácter',
+    medicacion TEXT COMMENT 'Medicamentos que está tomando el animal',
+    castrado BOOLEAN DEFAULT FALSE COMMENT 'Indica si el animal ha sido castrado o esterilizado',
     estado VARCHAR(20) NOT NULL DEFAULT 'RESCATADO' COMMENT 'Estado actual (RESCATADO, EN_ADOPCION, ADOPTADO)',
     urgente BOOLEAN DEFAULT FALSE COMMENT 'Indica si el caso es de alta urgencia',
     foto_url VARCHAR(255) NOT NULL DEFAULT '/img/rex.png' COMMENT 'Ruta relativa a la imagen del animal',
@@ -25,9 +27,9 @@ CREATE TABLE animales (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 5. Insertar datos de prueba para el arranque inicial
-INSERT INTO animales (nombre, especie, raza, edad, descripcion, estado) VALUES
-('Rex', 'Perro', 'Pastor Alemán', 5, 'Un perro leal y enérgico que busca un hogar activo. Le encanta jugar a la pelota.', 'EN_ADOPCION'),
-('Luna', 'Gato', 'Siamés', 2, 'Una gata tranquila y cariñosa. Perfecta para un hogar sin mucho ruido.', 'RESCATADO'),
-('Thor', 'Perro', 'Mestizo', 3, 'Juguetón y amigable con otros perros. Necesita un dueño que le guste correr.', 'RESCATADO');
+INSERT INTO animales (nombre, especie, raza, edad, descripcion, medicacion, castrado, estado) VALUES
+('Rex', 'Perro', 'Pastor Alemán', 5, 'Un perro leal y enérgico que busca un hogar activo. Le encanta jugar a la pelota.', 'Aspirina 500mg diarios', TRUE, 'EN_ADOPCION'),
+('Luna', 'Gato', 'Siamés', 2, 'Una gata tranquila y cariñosa. Perfecta para un hogar sin mucho ruido.', NULL, FALSE, 'RESCATADO'),
+('Thor', 'Perro', 'Mestizo', 3, 'Juguetón y amigable con otros perros. Necesita un dueño que le guste correr.', 'Vitaminas B12 dos veces por semana', TRUE, 'RESCATADO');
 
 -- --- FIN DEL SCRIPT ---

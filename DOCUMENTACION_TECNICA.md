@@ -2065,3 +2065,194 @@ Este proyecto demuestra la implementaciÃ³n de una **arquitectura cliente-servido
 
 **Fin de DocumentaciÃ³n**  
 VersiÃ³n: 1.0 | Fecha: 17/02/2026
+
+---
+
+## ARQUITECTURA DE DATOS AMPLIADA (Actualización 20 de Febrero de 2026)
+
+### Modelo de Datos - Tabla animales (Esquema Completo)
+
+La tabla `nimales` en MariaDB ahora contiene los siguientes campos:
+
+| Campo | Tipo | Nulo | Default | Descripcion |
+|-------|------|------|---------|-------------|
+| id | INT | No | AUTO_INCREMENT | Identificador unico |
+| nombre | VARCHAR(100) | No | - | Nombre del animal |
+| especie | VARCHAR(50) | No | - | Especie (Perro, Gato, Otro) |
+| raza | VARCHAR(50) | Si | NULL | Raza especifica |
+| edad | INT | Si | 0 | Edad en años |
+| descripcion | TEXT | Si | NULL | Descripcion detallada, historial y caracter |
+| medicacion | TEXT | Si | NULL | Medicamentos que esta tomando (NUEVO CAMPO) |
+| castrado | BOOLEAN | Si | FALSE | Si ha sido castrado/esterilizado (NUEVO CAMPO) |
+| estado | VARCHAR(20) | No | 'RESCATADO' | Estado actual (RESCATADO, EN_ADOPCION, EN_TRATAMIENTO) |
+| urgente | BOOLEAN | Si | FALSE | Indica si el caso es de alta urgencia |
+| foto_url | VARCHAR(255) | No | '/img/rex.png' | Ruta relativa a la imagen |
+| fecha_ingreso | TIMESTAMP | No | CURRENT_TIMESTAMP | Fecha y hora de registro |
+
+### Flujo de Datos: Frontend -> Backend -> BD
+
+#### 1. Captura en Frontend (app.js)
+`javascript
+// El usuario completa el formulario con todos los campos
+const data = {
+    id: '...',
+    nombre: '...',
+    especie: '...',
+    raza: '...',
+    edad: 0,
+    descripcion: '...',
+    medicacion: '...',        // NUEVO
+    castrado: false,           // NUEVO
+    estado: 'RESCATADO',
+    urgente: false,
+    fotoUrl: '...'
+};
+`
+
+#### 2. Transmision HTTP (POST a /api/animales)
+`json
+{
+    "nombre": "Rex",
+    "especie": "Perro",
+    "raza": "Pastor Aleman",
+    "edad": 5,
+    "descripcion": "Perro leal y energico",
+    "medicacion": "Aspirina 500mg diarios",
+    "castrado": true,
+    "estado": "EN_ADOPCION",
+    "urgente": false,
+    "fotoUrl": "/img/12345_foto.jpg"
+}
+`
+
+#### 3. Procesamiento en Servidor (ServidorAPI.java)
+`java
+// AnimalApiHandler.handle() - POST
+nuevo.setNombre(params.get("nombre"));
+nuevo.setEspecie(params.getOrDefault("especie", "Otro"));
+// ... otros campos ...
+nuevo.setMedicacion(params.getOrDefault("medicacion", null));     // NUEVO
+nuevo.setCastrado(Boolean.parseBoolean(params.getOrDefault("castrado", "false"))); // NUEVO
+`
+
+#### 4. Insercion en BD (AnimalDAO.java)
+`java
+String sql = "INSERT INTO animales (nombre, especie, raza, edad, descripcion, medicacion, castrado, estado, urgente, foto_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+stmt.setString(1, animal.getNombre());
+stmt.setString(2, animal.getEspecie());
+// ... otros parametros ...
+stmt.setString(6, animal.getMedicacion());                 // NUEVO
+stmt.setBoolean(7, animal.isCastrado());                  // NUEVO
+`
+
+#### 5. Lectura desde BD (listarTodos() en AnimalDAO)
+`java
+animal.setMedicacion(rs.getString("medicacion"));          // NUEVO
+animal.setCastrado(rs.getBoolean("castrado"));             // NUEVO
+`
+
+#### 6. Serializacion a JSON (Animal.toJson())
+`json
+{
+    "id": 1,
+    "nombre": "Rex",
+    "medicacion": "Aspirina 500mg diarios",
+    "castrado": true,
+    // ... otros campos ...
+}
+`
+
+#### 7. Visualizacion en Modal (mostrarDetalle() en app.js)
+`html
+<div class="detalle-item">
+    <label>Medicacion:</label>
+    <p>Aspirina 500mg diarios</p>
+</div>
+<div class="detalle-item">
+    <label>Castrado:</label>
+    <p>Si</p>
+</div>
+`
+
+### Diagrama de Flujo Completo
+
+`
+USUARIO FRONTEND
+    |
+    | Completa formulario con medicacion y castrado
+    
+EVENTO SUBMIT (app.js)
+    |
+    | Valida formulario
+    | Sube foto si existe
+    | Prepara objeto de datos JSON
+    
+FETCH POST /api/animales
+    |
+    | Env. JSON con 12 campos incluyendo medicacion y castrado
+    
+SERVIDOR (ServidorAPI.java)
+    |
+    | Parsea JSON
+    | Extrae parametros (incluyendo medicacion y castrado)
+    | Crea objeto Animal con todos los datos
+    
+AnimalDAO.insertar()
+    |
+    | Prepara consulta SQL con 10 campos
+    | Enlaza parametros (incluyendo medicacion y castrado)
+    | Ejecuta INSERT
+    
+MARIADB
+    |
+    | Inserta fila en tabla animales
+    | Devuelve ID generado
+    
+RESPUESTA JSON
+    |
+    | Objeto Animal serializado con todos los campos
+    | Incluyendo medicacion y castrado
+    
+ACTUALIZAR GRID (app.js)
+    |
+    | Recarga lista de animales
+    | Renderiza tarjetas actualizadas
+    
+VER DETALLE (Click en tarjeta)
+    |
+    | Modal muestra 8 items incluyendo medicacion y castrado
+    | Datos recuperados desde el objeto animal completo
+    
+FIN
+
+`
+
+### Validacion de Datos en el Frontend
+
+En el formulario (index.html):
+- Medicacion: textarea opcional (rows=2)
+- Castrado: select con opciones Si/No (requerido)
+
+En app.js:
+`javascript
+medicacion: document.getElementById('medicacion').value || null,  // null si vacio
+castrado: document.getElementById('castrado').value === 'true'     // booleano
+`
+
+### Retrocompatibilidad
+
+Los animales existentes (creados antes de esta actualizacion):
+- medicacion sera NULL
+- castrado sera FALSE (por defecto)
+- Seran mostrados como 'Ninguna' y 'No' respectivamente en la modal
+
+### Impacto en Otros Componentes
+
+1. **Animal.java**: +2 atributos, +2 getters/setters, toJson() actualizado
+2. **AnimalDAO.java**: INSERT con 10 columnas en lugar de 8
+3. **ServidorAPI.java**: Manejo de 2 parametros adicionales en POST
+4. **app.js**: Captura y envio de 2 campos nuevos, visualizacion en modal
+5. **index.html**: 2 nuevos campos en formulario
+6. **Database**: 2 columnas nuevas en tabla animales
+

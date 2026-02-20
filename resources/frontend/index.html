@@ -28,7 +28,7 @@
     <div id="miModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>🐾 Nuevo Registro</h2>
+            <h2>Nuevo Registro</h2>
             <form id="formAnimal">
                 <div class="form-group">
                     <label>ID Registro:</label>
@@ -74,8 +74,24 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Descripción:</label>
+                    <label>Descripcion:</label>
                     <textarea id="descripcion" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Medicacion:</label>
+                    <textarea id="medicacion" rows="2" placeholder="Ej: Aspirina 500mg diarios"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Castrado o Esterilizado:</label>
+                    <select id="castrado">
+                        <option value="false">No</option>
+                        <option value="true">Si</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Foto del Animal:</label>
+                    <input type="file" id="fotoAnimal" accept="image/*">
+                    <small style="display: block; margin-top: 5px; color: #666;">La foto es opcional</small>
                 </div>
                 <button type="submit" class="btn-submit">Guardar Ficha</button>
             </form>

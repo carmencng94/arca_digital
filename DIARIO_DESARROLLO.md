@@ -3481,3 +3481,79 @@ EXTRAS:
 
 **Creado**: 17 de febrero de 2026  
 **Estado**: Proyecto completo y funcional
+
+---
+
+## FASE ADICIONAL: MEJORAS AVANZADAS (20 de Febrero de 2026)
+
+### Ampliación de la Base de Datos y Modelo
+
+#### Cambios en SQL:
+- Agregados campos nuevos a la tabla animales:
+  - medicacion (TEXT): Almacena los medicamentos que toma el animal
+  - castrado (BOOLEAN): Indica si el animal ha sido castrado o esterilizado
+  - estos complementan el campo descripcion (TEXT) existente
+
+#### Cambios en Animal.java:
+- Nuevos atributos privados:
+  - private String medicacion;
+  - private boolean castrado;
+- Nuevos getters y setters:
+  - getMedicacion() y setMedicacion(String medicacion)
+  - isCastrado() y setCastrado(boolean castrado)
+- Metodo toJson() actualizado para incluir ambos campos en JSON
+
+#### Cambios en AnimalDAO.java:
+- Metodo listarTodos(): Ahora lee medicacion y castrado de la base de datos
+- Metodo insertar(): Permite insertar los 10 campos incluyendo medicacion y castrado
+
+#### Cambios en ServidorAPI.java:
+- AnimalApiHandler.handle(): POST ahora procesa medicacion y castrado desde JSON
+
+### Mejoras en el Dashboard (Frontend)
+
+#### Refactorización en app.js:
+- Funcion mostrarDetalle() mejorada:
+  - Ahora muestra 8 items en la grid de detalles (incluyendo Castrado y Medicacion)
+  - Medicacion se muestra como 'Ninguna' si no existe
+  - Castrado muestra 'Si' o 'No'
+- Formulario de registro actualizado para procesarcampos nuevos
+- Medicacion y Castrado se envian al servidor al registrar un animal
+
+#### Cambios en index.html:
+- Nuevo campo de formulario: textarea para medicacion (opcional)
+- Nuevo campo de formulario: select para castrado (Si/No)
+- Ubicados entre descripcion y foto del animal
+
+#### Cambios en styles.css:
+- Modal de detalles mejorado con positioning correcto
+- Grid de detalles muestra 2 columnas en desktop, 1 en mobile
+- Estilos para botones y campos nuevos mantienen consistencia
+
+### Estado del Sistema:
+- Compilacion: Exitosa sin errores
+- Base de datos: SQL actualizado con nuevos campos
+- Backend: Modelo y DAO actualizados
+- Frontend: Formulario y modal actualizados
+- Documentacion: Codigos completos documentados
+
+### Pruebas Realizadas:
+- Compilacion de archivos Java: OK
+- Servidor HTTP en puerto 8080: Operativo
+- Conexion a MariaDB: Exitosa
+
+### Archivos Modificados:
+- database.setup.sql
+- Animal.java
+- AnimalDAO.java
+- ServidorAPI.java
+- app.js
+- index.html
+- styles.css
+
+### Proximos Pasos:
+1. Reiniciar servidor y probar flujo completo
+2. Verificar que medicacion y castrado se guardan correctamente
+3. Validar que modal de detalles muestra todos los campos
+4. Prueba de end-to-end: registro, visualizacion, eliminacion
+
