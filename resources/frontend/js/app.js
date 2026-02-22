@@ -1,4 +1,4 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     const API_URL = 'http://localhost:8080/api';
     const animalGrid = document.getElementById('animal-grid');
     const user = JSON.parse(sessionStorage.getItem('user'));

@@ -18,7 +18,7 @@ public class ConexionDB {
     // DATOS DE CONEXIÓN
     // Definimos las constantes con la información de acceso.
     // URL: Protocolo (jdbc:mariadb) + Servidor (localhost) + Puerto (3306) + NombreBD (arca_digital)
-    private static final String URL = "jdbc:mariadb://localhost:3306/arca_digital";
+    private static final String URL = "jdbc:mariadb://localhost:3306/arca_digital?useUnicode=true&characterEncoding=UTF-8";
     private static final String USUARIO = "root";
     private static final String PASSWORD = "1234"; // Contraseña vacía por defecto en XAMPP/WAMP
 

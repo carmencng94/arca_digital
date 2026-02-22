@@ -1,4 +1,4 @@
-﻿// En este archivo JavaScript controlo la lógica del dashboard
+// En este archivo JavaScript controlo la lógica del dashboard
 // y las interacciones con el servidor. Lo cargo en index.html y
 // a partir de aquí manipulo el DOM (documento html) y hago peticiones
 // fetch para obtener/crear/editar animales.
